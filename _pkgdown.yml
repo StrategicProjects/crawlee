@@ -18,7 +18,6 @@ reference:
       - cr_options
       - cr_use_http
       - cr_use_browser
-      - cr_dataset
       - cr_run
       - cr_collect
   - title: Discovery
@@ -37,6 +36,12 @@ reference:
       - cr_chunk
       - cr_embed
       - cr_export
+  - title: Persistence
+    desc: Reproducible, resumable runs.
+    contents:
+      - cr_persist
+      - cr_dataset
+      - cr_close
   - title: Storage & queue
     desc: Lower-level building blocks.
     contents:

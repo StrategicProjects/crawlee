@@ -5,17 +5,23 @@
 \title{Dataset}
 \description{
 An append-only structured store for the records produced by handlers via
-\code{ctx$push_data()}. Records accumulate in memory and can be collected as a
-single tibble with \code{\link[=cr_collect]{cr_collect()}}. Persistent backends (DuckDB, Parquet) are
-planned for a future release; the \code{backend} argument is accepted now so that
-calling code remains forward-compatible.
+\code{ctx$push_data()}. Three backends are available:
+\itemize{
+\item \code{"memory"} (default): records accumulate in memory.
+\item \code{"jsonl"}: each record is appended as a line of JSON to a file —
+schema-flexible, append-only and resumable across runs.
+\item \code{"duckdb"}: records are appended to a table in a DuckDB database, ready for
+SQL analysis.
+}
+
+Collect everything as a single tibble with \code{\link[=cr_collect]{cr_collect()}}.
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{backend}}{Name of the storage backend.}
 
-    \item{\code{path}}{Optional path for persistent backends.}
+    \item{\code{path}}{Path for persistent backends.}
   }
   \if{html}{\out{</div>}}
 }
@@ -26,6 +32,7 @@ calling code remains forward-compatible.
     \item \href{#method-Dataset-push}{\code{Dataset$push()}}
     \item \href{#method-Dataset-collect}{\code{Dataset$collect()}}
     \item \href{#method-Dataset-count}{\code{Dataset$count()}}
+    \item \href{#method-Dataset-close}{\code{Dataset$close()}}
     \item \href{#method-Dataset-clone}{\code{Dataset$clone()}}
   }
 }
@@ -36,14 +43,16 @@ calling code remains forward-compatible.
   Create a dataset.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{Dataset$new(backend = "memory", path = NULL)}
+    \preformatted{Dataset$new(backend = "memory", path = NULL, table = "dataset")}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{backend}}{One of \code{"memory"}, \code{"duckdb"}, \code{"parquet"}.}
-      \item{\code{path}}{Optional path for persistent backends.}
+      \item{\code{backend}}{One of \code{"memory"}, \code{"jsonl"}, \code{"duckdb"}.}
+      \item{\code{path}}{File (jsonl) or database (duckdb) path; required for the
+persistent backends.}
+      \item{\code{table}}{Table name for the \code{"duckdb"} backend.}
     }
     \if{html}{\out{</div>}}
   }
@@ -79,7 +88,7 @@ calling code remains forward-compatible.
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A tibble (empty if nothing was pushed).
+    A tibble (empty if nothing was stored).
   }
 }
 
@@ -95,6 +104,19 @@ calling code remains forward-compatible.
   }
   \subsection{Returns}{
     Integer scalar.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Dataset-close"></a>}}
+\if{latex}{\out{\hypertarget{method-Dataset-close}{}}}
+\subsection{\code{Dataset$close()}}{
+  Close any open backend resources (e.g. the DuckDB
+connection). Safe to call multiple times.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Dataset$close()}
+    \if{html}{\out{</div>}}
   }
 }
 

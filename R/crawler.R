@@ -14,6 +14,7 @@ crawler_default_options <- function() {
     store_dir = NULL,
     browser_wait = 0,
     browser_wait_selector = NULL,
+    checkpoint_every = 25L,
     log_level = "info"
   )
 }
@@ -63,6 +64,7 @@ Crawler <- R6::R6Class(
       private$logger <- make_logger(self$options$log_level)
       private$robots_cache <- new.env(parent = emptyenv())
       private$crawl_delay <- 0
+      private$start_urls <- start_urls
       opts <- rlang::list2(...)
       if (length(opts)) {
         self$set_options(!!!opts)
@@ -109,18 +111,39 @@ Crawler <- R6::R6Class(
       self$kv
     },
 
+    #' @description Set the run directory where the manifest is written.
+    #' @param dir A directory path.
+    set_persist_dir = function(dir) {
+      private$persist_dir <- dir
+      invisible(self)
+    },
+
+    #' @description Release resources (browser session, DuckDB connection).
+    close = function() {
+      private$close_browser()
+      if (!is.null(self$dataset)) self$dataset$close()
+      invisible(self)
+    },
+
     #' @description Run the crawl until the queue drains or a limit is hit.
     run = function() {
       log <- private$logger
       on.exit(private$close_browser(), add = TRUE)
+      on.exit(self$queue$save(), add = TRUE)
+      on.exit(private$write_manifest(), add = TRUE)
       cli::cli_rule("crawlee - starting crawl")
+      if (self$queue$handled() > 0L) {
+        log$info("Resuming - already handled: {self$queue$handled()}")
+      }
       log$info("Mode: {.val {self$mode}} - pending: {self$queue$pending_count()}")
+      every <- max(1L, as.integer(self$options$checkpoint_every))
       max_req <- self$options$max_requests
       while (!self$queue$is_empty() && self$stats$requests < max_req) {
         req <- self$queue$pop()
         if (is.null(req)) break
         self$stats$requests <- self$stats$requests + 1L
         private$process(req)
+        if (self$stats$requests %% every == 0L) self$queue$save()
         wait <- max(self$options$delay, private$crawl_delay)
         if (wait > 0) Sys.sleep(wait)
       }
@@ -137,6 +160,37 @@ Crawler <- R6::R6Class(
     robots_cache = NULL,
     crawl_delay = 0,
     browser = NULL,
+    persist_dir = NULL,
+    start_urls = NULL,
+
+    # Write a reproducibility manifest to the run directory (no-op if unset).
+    write_manifest = function() {
+      if (is.null(private$persist_dir)) {
+        return(invisible(FALSE))
+      }
+      keep <- c(
+        "max_requests", "max_depth", "delay", "respect_robots",
+        "user_agent", "checkpoint_every"
+      )
+      manifest <- list(
+        package = "crawlee",
+        start_urls = private$start_urls,
+        mode = self$mode,
+        options = self$options[keep],
+        stats = self$stats,
+        pending = self$queue$pending_count(),
+        handled = self$queue$handled(),
+        updated_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
+      )
+      saveRDS(manifest, file.path(private$persist_dir, "manifest.rds"))
+      if (requireNamespace("jsonlite", quietly = TRUE)) {
+        writeLines(
+          jsonlite::toJSON(manifest, auto_unbox = TRUE, pretty = TRUE, null = "null"),
+          file.path(private$persist_dir, "manifest.json")
+        )
+      }
+      invisible(TRUE)
+    },
 
     # Check (and cache, per host) whether a URL is crawlable per robots.txt.
     robots_check = function(url) {
@@ -321,14 +375,17 @@ cr_use_http <- function(crawler) {
 #' Configure the dataset backend
 #'
 #' @param crawler A [Crawler].
-#' @param backend One of `"memory"` (default), `"duckdb"`, `"parquet"`.
-#' @param path Optional path used by persistent backends.
+#' @param backend One of `"memory"` (default), `"jsonl"`, `"duckdb"`.
+#' @param path File (jsonl) or database (duckdb) path; required for the
+#'   persistent backends.
+#' @param table Table name for the `"duckdb"` backend.
 #'
 #' @return The crawler, invisibly.
 #' @export
-cr_dataset <- function(crawler, backend = "memory", path = NULL) {
+cr_dataset <- function(crawler, backend = "memory", path = NULL,
+                       table = "dataset") {
   check_crawler(crawler)
-  crawler$dataset <- Dataset$new(backend = backend, path = path)
+  crawler$dataset <- Dataset$new(backend = backend, path = path, table = table)
   invisible(crawler)
 }
 

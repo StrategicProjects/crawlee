@@ -8,7 +8,8 @@ A deduplicating, FIFO-with-priority request queue, the in-memory engine
 behind every \code{\link[=crawler]{crawler()}}. Requests are keyed by a normalised \code{unique_key}
 (see \code{\link[=cr_normalize_url]{cr_normalize_url()}}) so the same URL is never enqueued twice. The
 queue tracks which requests have been handled, which makes a crawl
-resumable: a serialised queue can be reloaded and the crawl continued.
+resumable: when given a \code{path}, its state (pending requests, seen keys,
+handled count) can be saved to and restored from disk — see \code{\link[=cr_persist]{cr_persist()}}.
 
 This class is exported mainly for advanced use and introspection; most users
 interact with it indirectly through the \verb{cr_*} verbs.
@@ -24,6 +25,10 @@ interact with it indirectly through the \verb{cr_*} verbs.
     \item \href{#method-RequestQueue-pending_count}{\code{RequestQueue$pending_count()}}
     \item \href{#method-RequestQueue-handled}{\code{RequestQueue$handled()}}
     \item \href{#method-RequestQueue-is_empty}{\code{RequestQueue$is_empty()}}
+    \item \href{#method-RequestQueue-set_path}{\code{RequestQueue$set_path()}}
+    \item \href{#method-RequestQueue-has_saved_state}{\code{RequestQueue$has_saved_state()}}
+    \item \href{#method-RequestQueue-save}{\code{RequestQueue$save()}}
+    \item \href{#method-RequestQueue-restore}{\code{RequestQueue$restore()}}
     \item \href{#method-RequestQueue-clone}{\code{RequestQueue$clone()}}
   }
 }
@@ -34,7 +39,14 @@ interact with it indirectly through the \verb{cr_*} verbs.
   Create a new, empty request queue.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RequestQueue$new()}
+    \preformatted{RequestQueue$new(path = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{Optional path to an \code{.rds} file backing the queue state.}
+    }
     \if{html}{\out{</div>}}
   }
 }
@@ -162,6 +174,64 @@ retry counter.
   }
   \subsection{Returns}{
     Logical scalar.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RequestQueue-set_path"></a>}}
+\if{latex}{\out{\hypertarget{method-RequestQueue-set_path}{}}}
+\subsection{\code{RequestQueue$set_path()}}{
+  Set (or clear) the persistence path.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RequestQueue$set_path(path)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{Path to an \code{.rds} file, or \code{NULL}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RequestQueue-has_saved_state"></a>}}
+\if{latex}{\out{\hypertarget{method-RequestQueue-has_saved_state}{}}}
+\subsection{\code{RequestQueue$has_saved_state()}}{
+  Whether a persisted state file exists at the queue's path.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RequestQueue$has_saved_state()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Logical scalar.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RequestQueue-save"></a>}}
+\if{latex}{\out{\hypertarget{method-RequestQueue-save}{}}}
+\subsection{\code{RequestQueue$save()}}{
+  Persist the queue state to its \code{path} (a no-op without one).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RequestQueue$save()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RequestQueue-restore"></a>}}
+\if{latex}{\out{\hypertarget{method-RequestQueue-restore}{}}}
+\subsection{\code{RequestQueue$restore()}}{
+  Replace the in-memory state with the one persisted at \code{path}.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RequestQueue$restore()}
+    \if{html}{\out{</div>}}
   }
 }
 

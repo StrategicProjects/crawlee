@@ -4,7 +4,8 @@
 #' behind every [crawler()]. Requests are keyed by a normalised `unique_key`
 #' (see [cr_normalize_url()]) so the same URL is never enqueued twice. The
 #' queue tracks which requests have been handled, which makes a crawl
-#' resumable: a serialised queue can be reloaded and the crawl continued.
+#' resumable: when given a `path`, its state (pending requests, seen keys,
+#' handled count) can be saved to and restored from disk — see [cr_persist()].
 #'
 #' This class is exported mainly for advanced use and introspection; most users
 #' interact with it indirectly through the `cr_*` verbs.
@@ -14,10 +15,12 @@ RequestQueue <- R6::R6Class(
   "RequestQueue",
   public = list(
     #' @description Create a new, empty request queue.
-    initialize = function() {
+    #' @param path Optional path to an `.rds` file backing the queue state.
+    initialize = function(path = NULL) {
       private$pending <- list()
       private$seen <- new.env(parent = emptyenv())
       private$handled_count <- 0L
+      private$path <- path
     },
 
     #' @description Add a request to the queue.
@@ -87,11 +90,52 @@ RequestQueue <- R6::R6Class(
 
     #' @description Whether the queue has no pending requests.
     #' @return Logical scalar.
-    is_empty = function() length(private$pending) == 0L
+    is_empty = function() length(private$pending) == 0L,
+
+    #' @description Set (or clear) the persistence path.
+    #' @param path Path to an `.rds` file, or `NULL`.
+    set_path = function(path) {
+      private$path <- path
+      invisible(self)
+    },
+
+    #' @description Whether a persisted state file exists at the queue's path.
+    #' @return Logical scalar.
+    has_saved_state = function() {
+      !is.null(private$path) && file.exists(private$path)
+    },
+
+    #' @description Persist the queue state to its `path` (a no-op without one).
+    save = function() {
+      if (is.null(private$path)) {
+        return(invisible(FALSE))
+      }
+      state <- list(
+        pending = private$pending,
+        seen = ls(private$seen),
+        handled = private$handled_count
+      )
+      saveRDS(state, private$path)
+      invisible(TRUE)
+    },
+
+    #' @description Replace the in-memory state with the one persisted at `path`.
+    restore = function() {
+      if (!self$has_saved_state()) {
+        return(invisible(FALSE))
+      }
+      state <- readRDS(private$path)
+      private$pending <- state$pending
+      private$seen <- new.env(parent = emptyenv())
+      for (k in state$seen) private$seen[[k]] <- TRUE
+      private$handled_count <- state$handled %||% 0L
+      invisible(TRUE)
+    }
   ),
   private = list(
     pending = NULL,
     seen = NULL,
-    handled_count = 0L
+    handled_count = 0L,
+    path = NULL
   )
 )

@@ -4,14 +4,17 @@
 \alias{cr_dataset}
 \title{Configure the dataset backend}
 \usage{
-cr_dataset(crawler, backend = "memory", path = NULL)
+cr_dataset(crawler, backend = "memory", path = NULL, table = "dataset")
 }
 \arguments{
 \item{crawler}{A \link{Crawler}.}
 
-\item{backend}{One of \code{"memory"} (default), \code{"duckdb"}, \code{"parquet"}.}
+\item{backend}{One of \code{"memory"} (default), \code{"jsonl"}, \code{"duckdb"}.}
 
-\item{path}{Optional path used by persistent backends.}
+\item{path}{File (jsonl) or database (duckdb) path; required for the
+persistent backends.}
+
+\item{table}{Table name for the \code{"duckdb"} backend.}
 }
 \value{
 The crawler, invisibly.

@@ -40,6 +40,8 @@ native pipe (\verb{|>}).
     \item \href{#method-Crawler-set_options}{\code{Crawler$set_options()}}
     \item \href{#method-Crawler-set_handler}{\code{Crawler$set_handler()}}
     \item \href{#method-Crawler-get_kv}{\code{Crawler$get_kv()}}
+    \item \href{#method-Crawler-set_persist_dir}{\code{Crawler$set_persist_dir()}}
+    \item \href{#method-Crawler-close}{\code{Crawler$close()}}
     \item \href{#method-Crawler-run}{\code{Crawler$run()}}
     \item \href{#method-Crawler-clone}{\code{Crawler$clone()}}
   }
@@ -117,6 +119,37 @@ native pipe (\verb{|>}).
   }
   \subsection{Returns}{
     A \link{KeyValueStore}.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Crawler-set_persist_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-Crawler-set_persist_dir}{}}}
+\subsection{\code{Crawler$set_persist_dir()}}{
+  Set the run directory where the manifest is written.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Crawler$set_persist_dir(dir)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dir}}{A directory path.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Crawler-close"></a>}}
+\if{latex}{\out{\hypertarget{method-Crawler-close}{}}}
+\subsection{\code{Crawler$close()}}{
+  Release resources (browser session, DuckDB connection).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Crawler$close()}
+    \if{html}{\out{</div>}}
   }
 }
 
