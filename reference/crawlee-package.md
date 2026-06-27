@@ -21,8 +21,20 @@ Useful links:
 
 ## Author
 
-**Maintainer**: André Leite <leite@de.ufpe.br>
+**Maintainer**: Andre Leite <leite@castlab.org>
 
 Authors:
 
-- André Leite <leite@de.ufpe.br>
+- Andre Leite <leite@castlab.org>
+
+- Marcos Wasilew <marcos.wasilew@gmail.com>
+
+- Hugo Vasconcelos <hugo.vasconcelos@ufpe.br>
+
+- Carlos Amorin <carlos.agaf@ufpe.br>
+
+- Diogo Bezerra <diogo.bezerra@ufpe.br>
+
+- Tiago Pereira <tiago.pereira@tesouro.gov.br>
+
+- Fernando Barbalho <fbarbalho@gmail.com>
