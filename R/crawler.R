@@ -21,6 +21,7 @@ crawler_default_options <- function() {
     min_concurrency = 1L,
     max_concurrency = 16L,
     stream = FALSE,
+    stream_adaptive = FALSE,
     log_level = "info"
   )
 }
@@ -147,6 +148,8 @@ Crawler <- R6::R6Class(
       streaming <- parallel && isTRUE(self$options$stream)
       conc_txt <- if (!parallel) {
         ""
+      } else if (streaming && isTRUE(self$options$stream_adaptive)) {
+        paste0(" stream ", self$options$min_concurrency, "-", self$options$max_concurrency)
       } else if (streaming) {
         paste0(" stream x", self$options$concurrency)
       } else if (isTRUE(self$options$autoscale)) {
@@ -312,23 +315,45 @@ Crawler <- R6::R6Class(
       if (autoscale) log$info("Autoscale settled at concurrency {conc}.")
     },
 
-    # Streaming engine: keep up to `concurrency` requests in flight at all
-    # times via async promises; as soon as one finishes, dispatch it and pull
-    # the next from the queue. Maximises throughput under heterogeneous
-    # latency. Concurrency is the throttle; `delay`/`Crawl-delay` pacing is not
-    # enforced here (use the batch engine for strict pacing).
+    # Streaming engine: keep requests in flight at all times via async
+    # promises; as soon as one finishes, dispatch it and pull the next from the
+    # queue. Maximises throughput under heterogeneous latency. Optionally
+    # adapts the in-flight target (AIMD on back-pressure) and paces launches
+    # per host (`delay` / `Crawl-delay`), running distinct hosts in parallel.
     run_stream = function() {
       rlang::check_installed(c("promises", "later"), "for the streaming scheduler.")
       log <- private$logger
-      conc <- as.integer(self$options$concurrency)
+      adaptive <- isTRUE(self$options$stream_adaptive)
+      lo <- max(1L, as.integer(self$options$min_concurrency))
+      hi <- max(lo, as.integer(self$options$max_concurrency))
       every <- max(1L, as.integer(self$options$checkpoint_every))
-      active <- 0L
-      completed <- 0L
 
-      fill <- function() {
-        while (active < conc &&
-          !self$queue$is_empty() &&
-          self$stats$requests < self$options$max_requests) {
+      e <- new.env(parent = emptyenv())
+      e$active <- 0L
+      e$completed <- 0L
+      e$target <- if (adaptive) lo else as.integer(self$options$concurrency)
+      e$win <- integer(0)
+      e$deferred <- list()
+      e$host_next <- new.env(parent = emptyenv())
+      e$timer_set <- FALSE
+
+      budget_left <- function() self$stats$requests < self$options$max_requests
+      host_ready_at <- function(h) e$host_next[[h]] %||% 0
+      spacing_of <- function(req) max(self$options$delay, req$crawl_delay %||% 0)
+
+      # Next launchable request honouring per-host pacing, or NULL if none now.
+      take_one <- function() {
+        nowt <- as.numeric(Sys.time())
+        if (length(e$deferred)) {
+          for (i in seq_along(e$deferred)) {
+            r <- e$deferred[[i]]
+            if (nowt >= host_ready_at(url_host(r$url))) {
+              e$deferred[[i]] <- NULL
+              return(r)
+            }
+          }
+        }
+        while (!self$queue$is_empty()) {
           req <- self$queue$pop()
           if (is.null(req)) break
           rb <- private$robots_check(req$url)
@@ -337,32 +362,85 @@ Crawler <- R6::R6Class(
             self$stats$skipped <- self$stats$skipped + 1L
             next
           }
+          req$crawl_delay <- rb$crawl_delay %||% 0
+          if (nowt >= host_ready_at(url_host(req$url))) {
+            return(req)
+          }
+          e$deferred[[length(e$deferred) + 1L]] <- req
+        }
+        NULL
+      }
+
+      soonest_wait <- function() {
+        if (!length(e$deferred)) {
+          return(NA_real_)
+        }
+        nowt <- as.numeric(Sys.time())
+        mn <- Inf
+        for (r in e$deferred) mn <- min(mn, host_ready_at(url_host(r$url)))
+        max(0, mn - nowt)
+      }
+
+      adjust <- function() {
+        window <- max(2L, e$target)
+        if (length(e$win) >= window) {
+          old <- e$target
+          e$target <- autoscale_next(e$target, is_backpressure(e$win), lo, hi)
+          e$win <- integer(0)
+          if (e$target != old) log$debug("stream autoscale: {old} -> {e$target}")
+        }
+      }
+
+      fill <- function() {
+        while (e$active < e$target && budget_left()) {
+          r <- take_one()
+          if (is.null(r)) break
           self$stats$requests <- self$stats$requests + 1L
-          active <<- active + 1L
+          e$active <- e$active + 1L
+          e$host_next[[url_host(r$url)]] <- as.numeric(Sys.time()) + spacing_of(r)
           local({
-            r <- req
-            p <- httr2::req_perform_promise(private$build_request(r))
+            rr <- r
+            p <- httr2::req_perform_promise(private$build_request(rr))
             p <- promises::then(
               p,
               onFulfilled = function(resp) {
-                private$dispatch_fetched(r, fetched_response(resp))
+                if (adaptive) e$win <- c(e$win, result_status(resp))
+                private$dispatch_fetched(rr, fetched_response(resp))
               },
               onRejected = function(err) {
-                private$handle_fetch_error(r, err)
+                if (adaptive) e$win <- c(e$win, result_status(err))
+                private$handle_fetch_error(rr, err)
               }
             )
             promises::finally(p, function() {
-              active <<- active - 1L
-              completed <<- completed + 1L
-              if (completed %% every == 0L) self$queue$save()
+              e$active <- e$active - 1L
+              e$completed <- e$completed + 1L
+              if (e$completed %% every == 0L) self$queue$save()
+              if (adaptive) adjust()
               fill()
             })
           })
         }
+        # Nothing in flight but paced work remains: wake up when a host frees.
+        if (e$active == 0L && !e$timer_set && budget_left()) {
+          wait <- soonest_wait()
+          if (!is.na(wait)) {
+            e$timer_set <- TRUE
+            later::later(function() {
+              e$timer_set <- FALSE
+              fill()
+            }, max(0.02, wait))
+          }
+        }
       }
 
       fill()
-      while (active > 0L) later::run_now(timeout = 0.25)
+      while (e$active > 0L ||
+        (budget_left() && (length(e$deferred) > 0L || !self$queue$is_empty()))) {
+        later::run_now(timeout = 0.25)
+      }
+      self$stats$final_concurrency <- e$target
+      if (adaptive) log$info("Streaming autoscale settled at concurrency {e$target}.")
     },
 
     # Fetch + dispatch a single request (sequential path), with robots gate.
@@ -604,34 +682,51 @@ cr_autoscale <- function(crawler, min = 1L, max = 16L, max_active = NULL) {
 #' Enable the streaming scheduler
 #'
 #' A continuous-pool alternative to [cr_parallel()]'s synchronous batches. The
-#' streaming engine keeps up to `concurrency` requests in flight at all times
-#' (via async promises, [httr2::req_perform_promise()]): the moment one request
-#' finishes, its handler runs and the next request is pulled from the queue to
-#' refill the slot. Under heterogeneous response latency this avoids the
-#' "wait for the slowest in the batch" stall and improves throughput.
+#' streaming engine keeps requests in flight at all times (via async promises,
+#' [httr2::req_perform_promise()]): the moment one request finishes, its handler
+#' runs and the next request is pulled from the queue to refill the slot. Under
+#' heterogeneous response latency this avoids the "wait for the slowest in the
+#' batch" stall and improves throughput.
+#'
+#' With `adaptive = TRUE` the in-flight target adapts at run time (AIMD on
+#' back-pressure, like [cr_autoscale()]), within `[min, max]`.
+#'
+#' Launches are paced **per host**: a host is not hit again until `delay` /
+#' `robots.txt` `Crawl-delay` has elapsed, while different hosts run in
+#' parallel. With `delay = 0` and no `Crawl-delay`, pacing is a no-op.
 #'
 #' Requires the \pkg{promises} and \pkg{later} packages, and the HTTP backend.
-#' Concurrency is the throttle; `delay` / `robots.txt` `Crawl-delay` pacing is
-#' **not** enforced in streaming mode (use [cr_parallel()] for strict pacing).
-#' `robots.txt` allow/deny rules are still respected.
 #'
 #' @param crawler A [Crawler].
-#' @param concurrency Number of requests to keep in flight.
+#' @param concurrency Number of requests to keep in flight (the fixed target,
+#'   or the starting point is `min` when `adaptive = TRUE`).
+#' @param adaptive If `TRUE`, adapt the in-flight target within `[min, max]`.
+#' @param min,max Bounds for the adaptive target. `max` defaults to
+#'   `concurrency`.
 #'
 #' @return The crawler, invisibly.
 #' @export
 #'
 #' @examples
 #' crawler("https://example.com") |> cr_stream(concurrency = 10)
-cr_stream <- function(crawler, concurrency = 8L) {
+#' crawler("https://example.com") |> cr_stream(adaptive = TRUE, min = 2, max = 16)
+cr_stream <- function(crawler, concurrency = 8L, adaptive = FALSE,
+                      min = 1L, max = NULL) {
   check_crawler(crawler)
   if (concurrency < 1L) {
     cli::cli_abort("{.arg concurrency} must be a positive integer.")
   }
+  max <- max %||% concurrency
+  if (adaptive && (min < 1L || max < min)) {
+    cli::cli_abort("Require {.code 1 <= min <= max} (got min = {min}, max = {max}).")
+  }
   crawler$set_options(
     parallel = TRUE,
     stream = TRUE,
-    concurrency = as.integer(concurrency)
+    stream_adaptive = adaptive,
+    concurrency = as.integer(concurrency),
+    min_concurrency = as.integer(min),
+    max_concurrency = as.integer(max)
   )
   invisible(crawler)
 }

@@ -1,4 +1,4 @@
-Autoscaling
+AIMD
 CMD
 Crawlee's
 DOM
@@ -13,6 +13,7 @@ Roadmap
 async
 autoscaled
 autoscaling
+backends
 backoff
 checkpointed
 checkpointing
@@ -39,6 +40,7 @@ natively
 neighbour
 normalised
 pdftools
+pkgdown
 practising
 recursing
 resumable

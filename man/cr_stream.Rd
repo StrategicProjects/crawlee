@@ -4,30 +4,41 @@
 \alias{cr_stream}
 \title{Enable the streaming scheduler}
 \usage{
-cr_stream(crawler, concurrency = 8L)
+cr_stream(crawler, concurrency = 8L, adaptive = FALSE, min = 1L, max = NULL)
 }
 \arguments{
 \item{crawler}{A \link{Crawler}.}
 
-\item{concurrency}{Number of requests to keep in flight.}
+\item{concurrency}{Number of requests to keep in flight (the fixed target,
+or the starting point is \code{min} when \code{adaptive = TRUE}).}
+
+\item{adaptive}{If \code{TRUE}, adapt the in-flight target within \verb{[min, max]}.}
+
+\item{min, max}{Bounds for the adaptive target. \code{max} defaults to
+\code{concurrency}.}
 }
 \value{
 The crawler, invisibly.
 }
 \description{
 A continuous-pool alternative to \code{\link[=cr_parallel]{cr_parallel()}}'s synchronous batches. The
-streaming engine keeps up to \code{concurrency} requests in flight at all times
-(via async promises, \code{\link[httr2:req_perform_promise]{httr2::req_perform_promise()}}): the moment one request
-finishes, its handler runs and the next request is pulled from the queue to
-refill the slot. Under heterogeneous response latency this avoids the
-"wait for the slowest in the batch" stall and improves throughput.
+streaming engine keeps requests in flight at all times (via async promises,
+\code{\link[httr2:req_perform_promise]{httr2::req_perform_promise()}}): the moment one request finishes, its handler
+runs and the next request is pulled from the queue to refill the slot. Under
+heterogeneous response latency this avoids the "wait for the slowest in the
+batch" stall and improves throughput.
 }
 \details{
+With \code{adaptive = TRUE} the in-flight target adapts at run time (AIMD on
+back-pressure, like \code{\link[=cr_autoscale]{cr_autoscale()}}), within \verb{[min, max]}.
+
+Launches are paced \strong{per host}: a host is not hit again until \code{delay} /
+\code{robots.txt} \code{Crawl-delay} has elapsed, while different hosts run in
+parallel. With \code{delay = 0} and no \code{Crawl-delay}, pacing is a no-op.
+
 Requires the \pkg{promises} and \pkg{later} packages, and the HTTP backend.
-Concurrency is the throttle; \code{delay} / \code{robots.txt} \code{Crawl-delay} pacing is
-\strong{not} enforced in streaming mode (use \code{\link[=cr_parallel]{cr_parallel()}} for strict pacing).
-\code{robots.txt} allow/deny rules are still respected.
 }
 \examples{
 crawler("https://example.com") |> cr_stream(concurrency = 10)
+crawler("https://example.com") |> cr_stream(adaptive = TRUE, min = 2, max = 16)
 }

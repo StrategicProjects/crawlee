@@ -94,7 +94,11 @@ crawling.
   returns a tibble.
 * Rich console logging via `cli`.
 
-## Possible future work
+## Milestone M9 — adaptive & polite streaming
 
-* Autoscaling within the streaming scheduler (currently fixed concurrency);
-  per-host rate-limit pacing in streaming mode.
+* `cr_stream(adaptive = TRUE, min, max)` adapts the streaming pool's in-flight
+  target at run time (AIMD on back-pressure), like `cr_autoscale()` but for the
+  continuous scheduler.
+* The streaming engine now paces launches **per host** (`delay` /
+  `robots.txt` `Crawl-delay`): a host is not hit again until its interval has
+  elapsed, while different hosts keep running in parallel.
