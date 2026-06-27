@@ -10,6 +10,16 @@ navbar:
     left: [intro, reference, articles, news]
     right: [search, github]
 
+articles:
+  - title: Guides
+    navbar: ~
+    contents:
+      - crawlee
+      - crawling-a-website
+      - storage-and-resumable-runs
+      - scaling-and-politeness
+      - rag-pipeline
+
 reference:
   - title: Crawler
     desc: Build, configure and run a crawler.
