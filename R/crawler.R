@@ -27,7 +27,7 @@ crawler_default_options <- function() {
 
 #' Crawler
 #'
-#' The stateful object at the centre of crawlee. It holds the request queue,
+#' The stateful object at the center of crawlee. It holds the request queue,
 #' the dataset, the registered handlers and the run configuration. You will
 #' rarely create one with `Crawler$new()` directly; use [crawler()] and the
 #' `cr_*` verbs, which return the crawler invisibly so they compose with the

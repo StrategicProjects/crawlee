@@ -4,7 +4,7 @@
 \name{crawlee-package}
 \alias{crawlee}
 \alias{crawlee-package}
-\title{crawlee: A Tidy R Interface for Reproducible Web Crawling}
+\title{crawlee: Tidy Interface for Reproducible Web Crawling}
 \description{
 \if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
 

@@ -10,3 +10,4 @@
 ^\.git$
 ^scratchpad$
 ^\.DS_Store$
+^cran-comments\.md$

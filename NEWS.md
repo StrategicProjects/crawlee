@@ -1,6 +1,7 @@
-# crawlee 0.0.0.9000 (development)
+# crawlee 0.1.0
 
-First scaffold of the package. Crawlee-inspired, native-R architecture.
+First release. A tidy, native-R, Crawlee-inspired toolkit for reproducible web
+crawling.
 
 ## Milestone M8 — autoscaling & streaming
 

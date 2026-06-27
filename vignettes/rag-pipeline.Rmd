@@ -62,7 +62,7 @@ in batches and adds an `embedding` list-column.
 # A real embedder typically calls an HTTP API (any provider) with httr2:
 embed_fn <- function(texts) {
   # return a length(texts) x d numeric matrix
-  resp <- httr2::request("https://your-embeddings-endpoint/v1/embeddings") |>
+  resp <- httr2::request("https://api.example.com/v1/embeddings") |>
     httr2::req_auth_bearer_token(Sys.getenv("EMBEDDINGS_API_KEY")) |>
     httr2::req_body_json(list(input = texts)) |>
     httr2::req_perform()
