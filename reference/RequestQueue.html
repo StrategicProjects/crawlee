@@ -3,13 +3,15 @@
 behind every crawler(). Requests are keyed by a normalised unique_key
 (see cr_normalize_url()) so the same URL is never enqueued twice. The
 queue tracks which requests have been handled, which makes a crawl
-resumable: a serialised queue can be reloaded and the crawl continued.
+resumable: when given a path, its state (pending requests, seen keys,
+handled count) can be saved to and restored from disk — see cr_persist().
 This class is exported mainly for advanced use and introspection; most users
 interact with it indirectly through the cr_* verbs."><meta property="og:description" content="A deduplicating, FIFO-with-priority request queue, the in-memory engine
 behind every crawler(). Requests are keyed by a normalised unique_key
 (see cr_normalize_url()) so the same URL is never enqueued twice. The
 queue tracks which requests have been handled, which makes a crawl
-resumable: a serialised queue can be reloaded and the crawl continued.
+resumable: when given a path, its state (pending requests, seen keys,
+handled count) can be saved to and restored from disk — see cr_persist().
 This class is exported mainly for advanced use and introspection; most users
 interact with it indirectly through the cr_* verbs."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -51,7 +53,8 @@ interact with it indirectly through the cr_* verbs."></head><body>
 behind every <code><a href="crawler.html">crawler()</a></code>. Requests are keyed by a normalised <code>unique_key</code>
 (see <code><a href="cr_normalize_url.html">cr_normalize_url()</a></code>) so the same URL is never enqueued twice. The
 queue tracks which requests have been handled, which makes a crawl
-resumable: a serialised queue can be reloaded and the crawl continued.</p>
+resumable: when given a <code>path</code>, its state (pending requests, seen keys,
+handled count) can be saved to and restored from disk — see <code><a href="cr_persist.html">cr_persist()</a></code>.</p>
 <p>This class is exported mainly for advanced use and introspection; most users
 interact with it indirectly through the <code>cr_*</code> verbs.</p>
     </div>
@@ -70,12 +73,23 @@ interact with it indirectly through the <code>cr_*</code> verbs.</p>
 <li><p><a href="#method-RequestQueue-pending_count"><code>RequestQueue$pending_count()</code></a></p></li>
 <li><p><a href="#method-RequestQueue-handled"><code>RequestQueue$handled()</code></a></p></li>
 <li><p><a href="#method-RequestQueue-is_empty"><code>RequestQueue$is_empty()</code></a></p></li>
+<li><p><a href="#method-RequestQueue-set_path"><code>RequestQueue$set_path()</code></a></p></li>
+<li><p><a href="#method-RequestQueue-has_saved_state"><code>RequestQueue$has_saved_state()</code></a></p></li>
+<li><p><a href="#method-RequestQueue-save"><code>RequestQueue$save()</code></a></p></li>
+<li><p><a href="#method-RequestQueue-restore"><code>RequestQueue$restore()</code></a></p></li>
 <li><p><a href="#method-RequestQueue-clone"><code>RequestQueue$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-RequestQueue-initialize"></a><div class="section">
 <h3 id="requestqueue-new-"><code>RequestQueue$new()</code><a class="anchor" aria-label="anchor" href="#requestqueue-new-"></a></h3>
 <p>Create a new, empty request queue.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/RequestQueue.html">RequestQueue</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/RequestQueue.html">RequestQueue</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>path</code></dt>
+<dd><p>Optional path to an <code>.rds</code> file backing the queue state.</p></dd>
+
+
+</dl><p></p></div>
 </div>
 
 </div>
@@ -93,7 +107,7 @@ interact with it indirectly through the <code>cr_*</code> verbs.</p>
 <span>  force_unique <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>url</code></dt>
 <dd><p>Character scalar URL.</p></dd>
 
@@ -140,7 +154,7 @@ retry counter.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">reschedule</span><span class="op">(</span><span class="va">request</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>request</code></dt>
 <dd><p>A request list previously obtained from <code>pop()</code>.</p></dd>
 
@@ -195,13 +209,59 @@ retry counter.</p><div class="section">
 
 </div>
 
+<p></p><hr><a id="method-RequestQueue-set_path"></a><div class="section">
+<h3 id="requestqueue-set-path-"><code>RequestQueue$set_path()</code><a class="anchor" aria-label="anchor" href="#requestqueue-set-path-"></a></h3>
+<p>Set (or clear) the persistence path.</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">set_path</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>path</code></dt>
+<dd><p>Path to an <code>.rds</code> file, or <code>NULL</code>.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-RequestQueue-has_saved_state"></a><div class="section">
+<h3 id="requestqueue-has-saved-state-"><code>RequestQueue$has_saved_state()</code><a class="anchor" aria-label="anchor" href="#requestqueue-has-saved-state-"></a></h3>
+<p>Whether a persisted state file exists at the queue's path.</p><div class="section">
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">has_saved_state</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<p>Logical scalar.</p>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-RequestQueue-save"></a><div class="section">
+<h3 id="requestqueue-save-"><code>RequestQueue$save()</code><a class="anchor" aria-label="anchor" href="#requestqueue-save-"></a></h3>
+<p>Persist the queue state to its <code>path</code> (a no-op without one).</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-RequestQueue-restore"></a><div class="section">
+<h3 id="requestqueue-restore-"><code>RequestQueue$restore()</code><a class="anchor" aria-label="anchor" href="#requestqueue-restore-"></a></h3>
+<p>Replace the in-memory state with the one persisted at <code>path</code>.</p><div class="section">
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">restore</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-RequestQueue-clone"></a><div class="section">
 <h3 id="requestqueue-clone-"><code>RequestQueue$clone()</code><a class="anchor" aria-label="anchor" href="#requestqueue-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RequestQueue</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

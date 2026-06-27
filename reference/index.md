@@ -12,8 +12,6 @@ Build, configure and run a crawler.
   : Use the HTTP fetch backend
 - [`cr_use_browser()`](https://strategicprojects.github.io/crawlee/reference/cr_use_browser.md)
   : Use the headless-browser fetch backend
-- [`cr_dataset()`](https://strategicprojects.github.io/crawlee/reference/cr_dataset.md)
-  : Configure the dataset backend
 - [`cr_run()`](https://strategicprojects.github.io/crawlee/reference/cr_run.md)
   : Run a crawl
 - [`cr_collect()`](https://strategicprojects.github.io/crawlee/reference/cr_collect.md)
@@ -47,6 +45,17 @@ Chunk, embed and export text for retrieval.
   : Attach embeddings to chunks
 - [`cr_export()`](https://strategicprojects.github.io/crawlee/reference/cr_export.md)
   : Export chunks (and embeddings) for retrieval
+
+## Persistence
+
+Reproducible, resumable runs.
+
+- [`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md)
+  : Persist a crawl to a run directory (and resume it)
+- [`cr_dataset()`](https://strategicprojects.github.io/crawlee/reference/cr_dataset.md)
+  : Configure the dataset backend
+- [`cr_close()`](https://strategicprojects.github.io/crawlee/reference/cr_close.md)
+  : Release a crawler's resources
 
 ## Storage & queue
 

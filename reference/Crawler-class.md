@@ -57,6 +57,10 @@ with the native pipe (`|>`).
 
 - [`Crawler$get_kv()`](#method-Crawler-get_kv)
 
+- [`Crawler$set_persist_dir()`](#method-Crawler-set_persist_dir)
+
+- [`Crawler$close()`](#method-Crawler-close)
+
 - [`Crawler$run()`](#method-Crawler-run)
 
 - [`Crawler$clone()`](#method-Crawler-clone)
@@ -137,6 +141,32 @@ Get (lazily creating) the key-value store for binaries.
 
 A
 [KeyValueStore](https://strategicprojects.github.io/crawlee/reference/KeyValueStore.md).
+
+------------------------------------------------------------------------
+
+### `Crawler$set_persist_dir()`
+
+Set the run directory where the manifest is written.
+
+#### Usage
+
+    Crawler$set_persist_dir(dir)
+
+#### Arguments
+
+- `dir`:
+
+  A directory path.
+
+------------------------------------------------------------------------
+
+### `Crawler$close()`
+
+Release resources (browser session, DuckDB connection).
+
+#### Usage
+
+    Crawler$close()
 
 ------------------------------------------------------------------------
 

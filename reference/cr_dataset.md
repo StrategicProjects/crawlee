@@ -5,7 +5,7 @@ Configure the dataset backend
 ## Usage
 
 ``` r
-cr_dataset(crawler, backend = "memory", path = NULL)
+cr_dataset(crawler, backend = "memory", path = NULL, table = "dataset")
 ```
 
 ## Arguments
@@ -17,11 +17,16 @@ cr_dataset(crawler, backend = "memory", path = NULL)
 
 - backend:
 
-  One of `"memory"` (default), `"duckdb"`, `"parquet"`.
+  One of `"memory"` (default), `"jsonl"`, `"duckdb"`.
 
 - path:
 
-  Optional path used by persistent backends.
+  File (jsonl) or database (duckdb) path; required for the persistent
+  backends.
+
+- table:
+
+  Table name for the `"duckdb"` backend.
 
 ## Value
 

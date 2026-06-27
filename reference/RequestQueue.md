@@ -6,8 +6,10 @@ behind every
 Requests are keyed by a normalised `unique_key` (see
 [`cr_normalize_url()`](https://strategicprojects.github.io/crawlee/reference/cr_normalize_url.md))
 so the same URL is never enqueued twice. The queue tracks which requests
-have been handled, which makes a crawl resumable: a serialised queue can
-be reloaded and the crawl continued.
+have been handled, which makes a crawl resumable: when given a `path`,
+its state (pending requests, seen keys, handled count) can be saved to
+and restored from disk — see
+[`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md).
 
 This class is exported mainly for advanced use and introspection; most
 users interact with it indirectly through the `cr_*` verbs.
@@ -32,6 +34,14 @@ users interact with it indirectly through the `cr_*` verbs.
 
 - [`RequestQueue$is_empty()`](#method-RequestQueue-is_empty)
 
+- [`RequestQueue$set_path()`](#method-RequestQueue-set_path)
+
+- [`RequestQueue$has_saved_state()`](#method-RequestQueue-has_saved_state)
+
+- [`RequestQueue$save()`](#method-RequestQueue-save)
+
+- [`RequestQueue$restore()`](#method-RequestQueue-restore)
+
 - [`RequestQueue$clone()`](#method-RequestQueue-clone)
 
 ------------------------------------------------------------------------
@@ -42,7 +52,13 @@ Create a new, empty request queue.
 
 #### Usage
 
-    RequestQueue$new()
+    RequestQueue$new(path = NULL)
+
+#### Arguments
+
+- `path`:
+
+  Optional path to an `.rds` file backing the queue state.
 
 ------------------------------------------------------------------------
 
@@ -172,6 +188,56 @@ Whether the queue has no pending requests.
 #### Returns
 
 Logical scalar.
+
+------------------------------------------------------------------------
+
+### `RequestQueue$set_path()`
+
+Set (or clear) the persistence path.
+
+#### Usage
+
+    RequestQueue$set_path(path)
+
+#### Arguments
+
+- `path`:
+
+  Path to an `.rds` file, or `NULL`.
+
+------------------------------------------------------------------------
+
+### `RequestQueue$has_saved_state()`
+
+Whether a persisted state file exists at the queue's path.
+
+#### Usage
+
+    RequestQueue$has_saved_state()
+
+#### Returns
+
+Logical scalar.
+
+------------------------------------------------------------------------
+
+### `RequestQueue$save()`
+
+Persist the queue state to its `path` (a no-op without one).
+
+#### Usage
+
+    RequestQueue$save()
+
+------------------------------------------------------------------------
+
+### `RequestQueue$restore()`
+
+Replace the in-memory state with the one persisted at `path`.
+
+#### Usage
+
+    RequestQueue$restore()
 
 ------------------------------------------------------------------------
 

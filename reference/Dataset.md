@@ -1,12 +1,18 @@
 # Dataset
 
 An append-only structured store for the records produced by handlers via
-`ctx$push_data()`. Records accumulate in memory and can be collected as
-a single tibble with
+`ctx$push_data()`. Three backends are available:
+
+- `"memory"` (default): records accumulate in memory.
+
+- `"jsonl"`: each record is appended as a line of JSON to a file —
+  schema-flexible, append-only and resumable across runs.
+
+- `"duckdb"`: records are appended to a table in a DuckDB database,
+  ready for SQL analysis.
+
+Collect everything as a single tibble with
 [`cr_collect()`](https://strategicprojects.github.io/crawlee/reference/cr_collect.md).
-Persistent backends (DuckDB, Parquet) are planned for a future release;
-the `backend` argument is accepted now so that calling code remains
-forward-compatible.
 
 ## Public fields
 
@@ -16,7 +22,7 @@ forward-compatible.
 
 - `path`:
 
-  Optional path for persistent backends.
+  Path for persistent backends.
 
 ## Methods
 
@@ -30,6 +36,8 @@ forward-compatible.
 
 - [`Dataset$count()`](#method-Dataset-count)
 
+- [`Dataset$close()`](#method-Dataset-close)
+
 - [`Dataset$clone()`](#method-Dataset-clone)
 
 ------------------------------------------------------------------------
@@ -40,17 +48,22 @@ Create a dataset.
 
 #### Usage
 
-    Dataset$new(backend = "memory", path = NULL)
+    Dataset$new(backend = "memory", path = NULL, table = "dataset")
 
 #### Arguments
 
 - `backend`:
 
-  One of `"memory"`, `"duckdb"`, `"parquet"`.
+  One of `"memory"`, `"jsonl"`, `"duckdb"`.
 
 - `path`:
 
-  Optional path for persistent backends.
+  File (jsonl) or database (duckdb) path; required for the persistent
+  backends.
+
+- `table`:
+
+  Table name for the `"duckdb"` backend.
 
 ------------------------------------------------------------------------
 
@@ -80,7 +93,7 @@ Collect all records as a single tibble.
 
 #### Returns
 
-A tibble (empty if nothing was pushed).
+A tibble (empty if nothing was stored).
 
 ------------------------------------------------------------------------
 
@@ -95,6 +108,17 @@ Number of records (rows) stored.
 #### Returns
 
 Integer scalar.
+
+------------------------------------------------------------------------
+
+### `Dataset$close()`
+
+Close any open backend resources (e.g. the DuckDB connection). Safe to
+call multiple times.
+
+#### Usage
+
+    Dataset$close()
 
 ------------------------------------------------------------------------
 

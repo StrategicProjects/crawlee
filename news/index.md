@@ -4,6 +4,21 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+### Milestone M6 — persistent & resumable storage
+
+- [`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md)
+  ties a crawl to a run directory: the request queue is checkpointed
+  (`queue.rds`) during the run and **restored on the next run**, so a
+  crawl resumes where it left off without re-fetching seen URLs.
+- Persistent \[Dataset\] backends: `cr_dataset(backend = "jsonl")`
+  (append-only, schema-flexible) and `"duckdb"` (SQL-ready). The
+  `RequestQueue` gained
+  [`save()`](https://rdrr.io/r/base/save.html)/`restore()`/`set_path()`.
+- A reproducibility manifest (`manifest.rds` / `manifest.json`) records
+  the start URLs, options snapshot and run stats.
+- [`cr_close()`](https://strategicprojects.github.io/crawlee/reference/cr_close.md)
+  releases the browser session and DuckDB connection.
+
 ### Milestone M5 — RAG
 
 - [`cr_chunk()`](https://strategicprojects.github.io/crawlee/reference/cr_chunk.md)
@@ -81,10 +96,5 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 ### Not implemented yet (roadmap)
 
-- Persistent, resumable dataset backends (DuckDB, Parquet) — the
-  [`cr_dataset()`](https://strategicprojects.github.io/crawlee/reference/cr_dataset.md)
-  `backend` argument is accepted but currently stores in memory. (Note:
-  chunk exports already support these via
-  [`cr_export()`](https://strategicprojects.github.io/crawlee/reference/cr_export.md).)
 - Parallel/autoscaled fetching (currently sequential with rate
   limiting).
