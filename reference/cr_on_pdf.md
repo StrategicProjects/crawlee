@@ -63,10 +63,10 @@ a PDF handler's context provides:
 
 ``` r
 if (FALSE) { # \dontrun{
-crawler("https://www.example.gov/edital.pdf") |>
+crawler("https://example.com/report.pdf") |>
   cr_on_pdf(function(ctx) {
-    texto <- ctx$pdf_text()
-    ctx$push_data(list(url = ctx$request$url, n_paginas = length(texto)))
+    text <- ctx$pdf_text()
+    ctx$push_data(list(url = ctx$request$url, n_pages = length(text)))
     ctx$save_body(ext = "pdf")
   }) |>
   cr_run()

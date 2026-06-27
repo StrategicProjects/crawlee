@@ -61,11 +61,11 @@ before
 
 ``` r
 if (FALSE) { # \dontrun{
-crawler("https://www.example.gov") |>
-  cr_persist("runs/exemplo", dataset = "duckdb") |>
+crawler("https://example.com") |>
+  cr_persist("runs/example", dataset = "duckdb") |>
   cr_on_html(\(ctx) ctx$push_data(list(url = ctx$request$url))) |>
   cr_run() |>
   cr_collect()
-# Re-running the same pipeline resumes from runs/exemplo.
+# Re-running the same pipeline resumes from runs/example.
 } # }
 ```

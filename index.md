@@ -1,14 +1,13 @@
-# crawlee ![](reference/figures/logo.png)
+# crawlee
 
 > A tidy R interface for reproducible web crawling — inspired by the
 > architecture of [Crawlee](https://crawlee.dev), implemented in pure R.
 
 **crawlee** brings the unified-crawler idea to R: a deduplicating,
 resumable request queue, content-type aware handlers, structured storage
-and rich console logging via [cli](https://cli.r-lib.org). It targets
-the collection and analysis of **public and governmental data** — HTML
-pages, sitemaps, RSS feeds and PDF documents — with reproducibility as a
-first-class concern.
+and rich console logging via [cli](https://cli.r-lib.org). It can crawl
+HTML pages, sitemaps, RSS and Atom feeds and PDF documents — with
+reproducibility as a first-class concern.
 
 It is built entirely on the R web-scraping ecosystem
 ([httr2](https://httr2.r-lib.org), [rvest](https://rvest.tidyverse.org),
@@ -38,7 +37,7 @@ resultado <- crawler("https://example.com") |>
       url    = ctx$request$url,
       titulo = ctx$page |> rvest::html_element("h1") |> rvest::html_text2()
     ))
-    ctx$enqueue_links(glob = "*/noticias/*")
+    ctx$enqueue_links(glob = "*/blog/*")
   }) |>
   cr_run() |>
   cr_collect()
@@ -59,7 +58,7 @@ resultado
 - **Tidy & predictable** — `cr_*` verbs compose with the native pipe and
   always return tibbles.
 - **A polite web citizen** — rate limiting and `robots.txt` awareness by
-  default (important for governmental portals).
+  default.
 
 ## Roadmap
 
@@ -76,6 +75,4 @@ parallel/autoscaled fetching.
 
 ## License
 
-MIT © André Leite. Part of the
-[StrategicProjects](https://github.com/StrategicProjects) R toolkit for
-public data.
+MIT © André Leite.

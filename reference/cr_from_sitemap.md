@@ -2,8 +2,8 @@
 
 Fetches a sitemap (or sitemap index, recursively) and enqueues the page
 URLs it lists. Supports gzipped sitemaps, glob filtering and a `since`
-filter on `<lastmod>` for incremental crawls — useful for official
-gazettes and transparency portals that publish dated sitemaps.
+filter on `<lastmod>` for incremental re-crawls of large sites that
+publish dated sitemaps.
 
 ## Usage
 
@@ -64,6 +64,6 @@ The crawler, invisibly.
 if (FALSE) { # \dontrun{
 crawler() |>
   cr_on_html(\(ctx) ctx$push_data(list(url = ctx$request$url))) |>
-  cr_from_sitemap("https://www.example.gov/sitemap.xml", since = "2026-01-01")
+  cr_from_sitemap("https://example.com/sitemap.xml", since = "2026-01-01")
 } # }
 ```

@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="A Tidy R Interface for Reproducible Web Crawling">
-<meta name="description" content="A tidy, pipe-friendly toolkit for reproducible web crawling and structured data collection, inspired by the architecture of the Crawlee library. Provides a unified crawler with a deduplicating, resumable request queue, content-type aware handlers, structured storage backends and rich console logging via cli. Designed for the collection and analysis of public and governmental data from HTML pages, sitemaps, RSS feeds and PDF documents.">
-<meta property="og:description" content="A tidy, pipe-friendly toolkit for reproducible web crawling and structured data collection, inspired by the architecture of the Crawlee library. Provides a unified crawler with a deduplicating, resumable request queue, content-type aware handlers, structured storage backends and rich console logging via cli. Designed for the collection and analysis of public and governmental data from HTML pages, sitemaps, RSS feeds and PDF documents.">
+<meta name="description" content="A tidy, pipe-friendly toolkit for reproducible web crawling and structured data collection, inspired by the architecture of the Crawlee library. Provides a unified crawler with a deduplicating, resumable request queue, content-type aware handlers, structured storage backends and rich console logging via cli. Supports crawling HTML pages, sitemaps, RSS and Atom feeds and PDF documents, with optional headless-browser rendering and helpers for retrieval-augmented generation.">
+<meta property="og:description" content="A tidy, pipe-friendly toolkit for reproducible web crawling and structured data collection, inspired by the architecture of the Crawlee library. Provides a unified crawler with a deduplicating, resumable request queue, content-type aware handlers, structured storage backends and rich console logging via cli. Supports crawling HTML pages, sitemaps, RSS and Atom feeds and PDF documents, with optional headless-browser rendering and helpers for retrieval-augmented generation.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,6 +33,12 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/crawlee.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/crawling-a-website.html">Crawling a website</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -48,14 +54,14 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="crawlee-">crawlee <img src="reference/figures/logo.png" align="right" height="120" alt=""><a class="anchor" aria-label="anchor" href="#crawlee-"></a>
+<div class="page-header"><h1 id="crawlee">crawlee<a class="anchor" aria-label="anchor" href="#crawlee"></a>
 </h1></div>
 <!-- badges: start -->
 
 <blockquote>
 <p>A tidy R interface for reproducible web crawling — inspired by the architecture of <a href="https://crawlee.dev" class="external-link">Crawlee</a>, implemented in pure R.</p>
 </blockquote>
-<p><strong>crawlee</strong> brings the unified-crawler idea to R: a deduplicating, resumable request queue, content-type aware handlers, structured storage and rich console logging via <a href="https://cli.r-lib.org" class="external-link">cli</a>. It targets the collection and analysis of <strong>public and governmental data</strong> — HTML pages, sitemaps, RSS feeds and PDF documents — with reproducibility as a first-class concern.</p>
+<p><strong>crawlee</strong> brings the unified-crawler idea to R: a deduplicating, resumable request queue, content-type aware handlers, structured storage and rich console logging via <a href="https://cli.r-lib.org" class="external-link">cli</a>. It can crawl HTML pages, sitemaps, RSS and Atom feeds and PDF documents — with reproducibility as a first-class concern.</p>
 <p>It is built entirely on the R web-scraping ecosystem (<a href="https://httr2.r-lib.org" class="external-link">httr2</a>, <a href="https://rvest.tidyverse.org" class="external-link">rvest</a>, <a href="https://xml2.r-lib.org" class="external-link">xml2</a>, <a href="https://rstudio.github.io/chromote/" class="external-link">chromote</a>) — no Node.js runtime required.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -78,7 +84,7 @@
 <span>      url    <span class="op">=</span> <span class="va">ctx</span><span class="op">$</span><span class="va">request</span><span class="op">$</span><span class="va">url</span>,</span>
 <span>      titulo <span class="op">=</span> <span class="va">ctx</span><span class="op">$</span><span class="va">page</span> <span class="op">|&gt;</span> <span class="fu">rvest</span><span class="fu">::</span><span class="fu"><a href="https://rvest.tidyverse.org/reference/html_element.html" class="external-link">html_element</a></span><span class="op">(</span><span class="st">"h1"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">rvest</span><span class="fu">::</span><span class="fu"><a href="https://rvest.tidyverse.org/reference/html_text.html" class="external-link">html_text2</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">ctx</span><span class="op">$</span><span class="fu">enqueue_links</span><span class="op">(</span>glob <span class="op">=</span> <span class="st">"*/noticias/*"</span><span class="op">)</span></span>
+<span>    <span class="va">ctx</span><span class="op">$</span><span class="fu">enqueue_links</span><span class="op">(</span>glob <span class="op">=</span> <span class="st">"*/blog/*"</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/cr_run.html">cr_run</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/cr_collect.html">cr_collect</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -100,7 +106,7 @@
 <li>
 <strong>Tidy &amp; predictable</strong> — <code>cr_*</code> verbs compose with the native pipe and always return tibbles.</li>
 <li>
-<strong>A polite web citizen</strong> — rate limiting and <code>robots.txt</code> awareness by default (important for governmental portals).</li>
+<strong>A polite web citizen</strong> — rate limiting and <code>robots.txt</code> awareness by default.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -145,7 +151,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT © André Leite. Part of the <a href="https://github.com/StrategicProjects" class="external-link">StrategicProjects</a> R toolkit for public data.</p>
+<p>MIT © André Leite.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

@@ -3,6 +3,7 @@
 <url><loc>https://strategicprojects.github.io/crawlee/LICENSE-text.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/LICENSE.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/articles/crawlee.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/articles/crawling-a-website.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/articles/index.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/authors.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/index.html</loc></url>
@@ -11,6 +12,7 @@
 <url><loc>https://strategicprojects.github.io/crawlee/reference/Dataset.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/KeyValueStore.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/RequestQueue.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_autoscale.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_chunk.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_close.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_collect.html</loc></url>

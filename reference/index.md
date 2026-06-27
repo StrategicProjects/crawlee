@@ -14,6 +14,8 @@ Build, configure and run a crawler.
   : Use the headless-browser fetch backend
 - [`cr_parallel()`](https://strategicprojects.github.io/crawlee/reference/cr_parallel.md)
   : Enable parallel (concurrent) fetching
+- [`cr_autoscale()`](https://strategicprojects.github.io/crawlee/reference/cr_autoscale.md)
+  : Enable autoscaled parallel fetching
 - [`cr_run()`](https://strategicprojects.github.io/crawlee/reference/cr_run.md)
   : Run a crawl
 - [`cr_collect()`](https://strategicprojects.github.io/crawlee/reference/cr_collect.md)

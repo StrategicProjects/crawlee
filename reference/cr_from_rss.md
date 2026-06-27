@@ -52,8 +52,8 @@ The crawler, invisibly.
 if (FALSE) { # \dontrun{
 crawler() |>
   cr_on_html(\(ctx) ctx$push_data(list(
-    url = ctx$request$url, titulo = ctx$request$user_data$title
+    url = ctx$request$url, title = ctx$request$user_data$title
   ))) |>
-  cr_from_rss("https://www.example.gov/noticias/rss")
+  cr_from_rss("https://example.com/feed.xml")
 } # }
 ```

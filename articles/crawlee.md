@@ -60,14 +60,14 @@ care about:
 ``` r
 
 ctx$enqueue_links(
-  glob    = "*/noticias/*",
+  glob    = "*/blog/*",
   exclude = "*/tag/*",
-  label   = "noticia"
+  label   = "article"
 )
 ```
 
 Requests enqueued with a `label` are routed to the matching handler
-registered with `cr_on_html(..., label = "noticia")`.
+registered with `cr_on_html(..., label = "article")`.
 
 ## Reproducibility
 
