@@ -15,6 +15,8 @@ crawler_default_options <- function() {
     browser_wait = 0,
     browser_wait_selector = NULL,
     checkpoint_every = 25L,
+    parallel = FALSE,
+    max_active = NULL,
     log_level = "info"
   )
 }
@@ -135,18 +137,12 @@ Crawler <- R6::R6Class(
       if (self$queue$handled() > 0L) {
         log$info("Resuming - already handled: {self$queue$handled()}")
       }
-      log$info("Mode: {.val {self$mode}} - pending: {self$queue$pending_count()}")
-      every <- max(1L, as.integer(self$options$checkpoint_every))
-      max_req <- self$options$max_requests
-      while (!self$queue$is_empty() && self$stats$requests < max_req) {
-        req <- self$queue$pop()
-        if (is.null(req)) break
-        self$stats$requests <- self$stats$requests + 1L
-        private$process(req)
-        if (self$stats$requests %% every == 0L) self$queue$save()
-        wait <- max(self$options$delay, private$crawl_delay)
-        if (wait > 0) Sys.sleep(wait)
-      }
+      parallel <- isTRUE(self$options$parallel) &&
+        identical(self$mode, "http") &&
+        as.integer(self$options$concurrency) > 1L
+      conc_txt <- if (parallel) paste0(" x", self$options$concurrency) else ""
+      log$info("Mode: {.val {self$mode}}{conc_txt} - pending: {self$queue$pending_count()}")
+      if (parallel) private$run_parallel() else private$run_sequential()
       cli::cli_rule("crawlee - done")
       log$success(
         "Handled {self$stats$succeeded} - failed {self$stats$failed} - ",
@@ -222,7 +218,68 @@ Crawler <- R6::R6Class(
       )
     },
 
-    # Fetch + dispatch a single request, with retry-on-error.
+    # ---- engine loops -------------------------------------------------------
+
+    # Sequential engine: one request at a time.
+    run_sequential = function() {
+      every <- max(1L, as.integer(self$options$checkpoint_every))
+      processed <- 0L
+      while (!self$queue$is_empty() && self$stats$requests < self$options$max_requests) {
+        req <- self$queue$pop()
+        if (is.null(req)) break
+        private$process(req)
+        processed <- processed + 1L
+        if (processed %% every == 0L) self$queue$save()
+        wait <- max(self$options$delay, private$crawl_delay)
+        if (wait > 0) Sys.sleep(wait)
+      }
+    },
+
+    # Parallel engine: fetch a batch concurrently (network I/O), then dispatch
+    # handlers sequentially in R (no shared-state hazard).
+    run_parallel = function() {
+      log <- private$logger
+      conc <- as.integer(self$options$concurrency)
+      max_active <- self$options$max_active %||% conc
+      while (!self$queue$is_empty() && self$stats$requests < self$options$max_requests) {
+        room <- self$options$max_requests - self$stats$requests
+        take <- min(conc, room)
+        batch <- list()
+        while (length(batch) < take && !self$queue$is_empty()) {
+          req <- self$queue$pop()
+          if (is.null(req)) break
+          rb <- private$robots_check(req$url)
+          if (!rb$allowed) {
+            log$warn("Blocked by robots.txt: {.url {req$url}}")
+            self$stats$skipped <- self$stats$skipped + 1L
+            next
+          }
+          req$crawl_delay <- rb$crawl_delay %||% 0
+          batch[[length(batch) + 1L]] <- req
+        }
+        if (!length(batch)) next
+        reqs <- lapply(batch, private$build_request)
+        resps <- httr2::req_perform_parallel(
+          reqs,
+          on_error = "continue", max_active = max_active, progress = FALSE
+        )
+        self$stats$requests <- self$stats$requests + length(batch)
+        for (i in seq_along(batch)) {
+          resp <- resps[[i]]
+          if (inherits(resp, "httr2_response")) {
+            private$dispatch_fetched(batch[[i]], fetched_response(resp))
+          } else {
+            private$handle_fetch_error(batch[[i]], resp)
+          }
+        }
+        self$queue$save()
+        cd <- max(vapply(batch, function(r) r$crawl_delay %||% 0, numeric(1)))
+        wait <- max(self$options$delay, cd)
+        if (wait > 0) Sys.sleep(wait)
+      }
+    },
+
+    # Fetch + dispatch a single request (sequential path), with robots gate.
     process = function(req) {
       log <- private$logger
       rb <- private$robots_check(req$url)
@@ -232,17 +289,31 @@ Crawler <- R6::R6Class(
         self$stats$skipped <- self$stats$skipped + 1L
         return(invisible(NULL))
       }
+      self$stats$requests <- self$stats$requests + 1L
       fetched <- tryCatch(private$fetch(req), error = function(e) e)
       if (inherits(fetched, "error")) {
-        if (req$retry_count < self$options$max_retries) {
-          log$warn("Retry {.url {req$url}} ({conditionMessage(fetched)})")
-          self$queue$reschedule(req)
-        } else {
-          log$error("Failed {.url {req$url}}: {conditionMessage(fetched)}")
-          self$stats$failed <- self$stats$failed + 1L
-        }
+        private$handle_fetch_error(req, fetched)
         return(invisible(NULL))
       }
+      private$dispatch_fetched(req, fetched)
+    },
+
+    # Retry (reschedule) a failed request, or give up after max_retries.
+    handle_fetch_error = function(req, cond) {
+      log <- private$logger
+      if (req$retry_count < self$options$max_retries) {
+        log$warn("Retry {.url {req$url}} ({conditionMessage(cond)})")
+        self$queue$reschedule(req)
+      } else {
+        log$error("Failed {.url {req$url}}: {conditionMessage(cond)}")
+        self$stats$failed <- self$stats$failed + 1L
+      }
+      invisible(NULL)
+    },
+
+    # Classify content, route to a handler, run it, and update stats.
+    dispatch_fetched = function(req, fetched) {
+      log <- private$logger
       kind <- classify_content(fetched$content_type, req$url)
       handler <- private$resolve_handler(req, kind)
       if (is.null(handler)) {
@@ -281,14 +352,18 @@ Crawler <- R6::R6Class(
       }
     },
 
-    fetch_http = function(req) {
-      resp <- httr2::request(req$url) |>
+    # Build (but do not perform) an httr2 request — shared by the sequential
+    # and parallel HTTP engines.
+    build_request = function(req) {
+      httr2::request(req$url) |>
         httr2::req_method(req$method) |>
         httr2::req_user_agent(self$options$user_agent) |>
         httr2::req_timeout(self$options$timeout) |>
-        httr2::req_retry(max_tries = 1L) |>
-        httr2::req_perform()
-      fetched_response(resp)
+        httr2::req_retry(max_tries = 1L)
+    },
+
+    fetch_http = function(req) {
+      fetched_response(httr2::req_perform(private$build_request(req)))
     },
 
     fetch_browser = function(req) {
@@ -369,6 +444,40 @@ cr_options <- function(crawler, ...) {
 cr_use_http <- function(crawler) {
   check_crawler(crawler)
   crawler$mode <- "http"
+  invisible(crawler)
+}
+
+#' Enable parallel (concurrent) fetching
+#'
+#' Switches the HTTP engine to fetch requests in concurrent batches via
+#' `httr2::req_perform_parallel()`, the rough equivalent of Crawlee's
+#' autoscaled pool. Network I/O runs concurrently while handlers still run
+#' sequentially in R, so there is no shared-state hazard. `robots.txt`,
+#' retries, `max_requests`/`max_depth` and queue checkpointing all still apply.
+#'
+#' Parallel mode applies to the HTTP backend only; the browser backend always
+#' runs sequentially. `delay` and `Crawl-delay` are applied *between* batches.
+#'
+#' @param crawler A [Crawler].
+#' @param concurrency Number of requests per batch.
+#' @param max_active Maximum simultaneously-active connections (defaults to
+#'   `concurrency`).
+#'
+#' @return The crawler, invisibly.
+#' @export
+#'
+#' @examples
+#' crawler("https://example.com") |> cr_parallel(concurrency = 8)
+cr_parallel <- function(crawler, concurrency = 4L, max_active = NULL) {
+  check_crawler(crawler)
+  if (concurrency < 1L) {
+    cli::cli_abort("{.arg concurrency} must be a positive integer.")
+  }
+  crawler$set_options(
+    parallel = TRUE,
+    concurrency = as.integer(concurrency),
+    max_active = max_active
+  )
   invisible(crawler)
 }
 
