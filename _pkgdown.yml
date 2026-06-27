@@ -28,6 +28,7 @@ reference:
   - title: Storage & queue
     desc: Lower-level building blocks.
     contents:
+      - Crawler-class
       - RequestQueue
       - Dataset
   - title: Utilities
