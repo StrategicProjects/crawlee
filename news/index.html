@@ -37,6 +37,12 @@
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crawlee-0009000-development">crawlee 0.0.0.9000 (development)<a class="anchor" aria-label="anchor" href="#crawlee-0009000-development"></a></h2>
 <p>First scaffold of the package. Crawlee-inspired, native-R architecture.</p>
 <div class="section level3">
+<h3 id="milestone-m4--headless-browser-0-0-0-9000">Milestone M4 — headless browser<a class="anchor" aria-label="anchor" href="#milestone-m4--headless-browser-0-0-0-9000"></a></h3>
+<ul><li>
+<code><a href="../reference/cr_use_browser.html">cr_use_browser()</a></code> renders JavaScript-heavy pages with a headless Chrome/Chromium via , with <code>wait</code> and <code>wait_selector</code> controls. Handlers are unchanged (<code>ctx$page</code>, <code>enqueue_links()</code>); the context gains <code>ctx$screenshot()</code>, saved to the [KeyValueStore].</li>
+<li>Fetch backends are now unified behind a normalised internal <code>fetched</code> object, so handlers behave identically regardless of HTTP vs browser.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-m3--documents-0-0-0-9000">Milestone M3 — documents<a class="anchor" aria-label="anchor" href="#milestone-m3--documents-0-0-0-9000"></a></h3>
 <ul><li>Content-type aware dispatch: each response is classified (<code>html</code>, <code>pdf</code>, <code>other</code>) and routed to the matching default handler; explicit request labels still take precedence.</li>
 <li>
@@ -72,7 +78,7 @@
 <div class="section level3">
 <h3 id="not-implemented-yet-roadmap-0-0-0-9000">Not implemented yet (roadmap)<a class="anchor" aria-label="anchor" href="#not-implemented-yet-roadmap-0-0-0-9000"></a></h3>
 <ul><li>Persistent dataset backends (DuckDB, Parquet) — the <code>backend</code> argument is accepted but currently stores in memory.</li>
-<li>Headless browser (M4), RAG helpers (M5).</li>
+<li>RAG helpers (M5).</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
