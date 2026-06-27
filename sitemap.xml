@@ -11,8 +11,11 @@
 <url><loc>https://strategicprojects.github.io/crawlee/reference/Dataset.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/KeyValueStore.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/RequestQueue.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_chunk.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_collect.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_dataset.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_embed.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_export.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_from_rss.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_from_sitemap.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_normalize_url.html</loc></url>

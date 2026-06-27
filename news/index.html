@@ -37,6 +37,15 @@
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crawlee-0009000-development">crawlee 0.0.0.9000 (development)<a class="anchor" aria-label="anchor" href="#crawlee-0009000-development"></a></h2>
 <p>First scaffold of the package. Crawlee-inspired, native-R architecture.</p>
 <div class="section level3">
+<h3 id="milestone-m5--rag-0-0-0-9000">Milestone M5 — RAG<a class="anchor" aria-label="anchor" href="#milestone-m5--rag-0-0-0-9000"></a></h3>
+<ul><li>
+<code><a href="../reference/cr_chunk.html">cr_chunk()</a></code> splits text (a character vector or a data-frame column) into overlapping chunks, by character or word, carrying metadata per chunk.</li>
+<li>
+<code><a href="../reference/cr_embed.html">cr_embed()</a></code> attaches an <code>embedding</code> list-column via a user-supplied, provider-agnostic embedding function, applied in batches. crawlee never calls an external service itself.</li>
+<li>
+<code><a href="../reference/cr_export.html">cr_export()</a></code> writes chunks (and embeddings) to Parquet, JSONL, CSV or DuckDB for retrieval.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-m4--headless-browser-0-0-0-9000">Milestone M4 — headless browser<a class="anchor" aria-label="anchor" href="#milestone-m4--headless-browser-0-0-0-9000"></a></h3>
 <ul><li>
 <code><a href="../reference/cr_use_browser.html">cr_use_browser()</a></code> renders JavaScript-heavy pages with a headless Chrome/Chromium via , with <code>wait</code> and <code>wait_selector</code> controls. Handlers are unchanged (<code>ctx$page</code>, <code>enqueue_links()</code>); the context gains <code>ctx$screenshot()</code>, saved to the [KeyValueStore].</li>
@@ -77,8 +86,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="not-implemented-yet-roadmap-0-0-0-9000">Not implemented yet (roadmap)<a class="anchor" aria-label="anchor" href="#not-implemented-yet-roadmap-0-0-0-9000"></a></h3>
-<ul><li>Persistent dataset backends (DuckDB, Parquet) — the <code>backend</code> argument is accepted but currently stores in memory.</li>
-<li>RAG helpers (M5).</li>
+<ul><li>Persistent, resumable dataset backends (DuckDB, Parquet) — the <code><a href="../reference/cr_dataset.html">cr_dataset()</a></code> <code>backend</code> argument is accepted but currently stores in memory. (Note: chunk exports already support these via <code><a href="../reference/cr_export.html">cr_export()</a></code>.)</li>
+<li>Parallel/autoscaled fetching (currently sequential with rate limiting).</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

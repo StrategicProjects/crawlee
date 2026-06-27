@@ -116,6 +116,17 @@ Register handlers and act on fetched content.
 - [`cr_on_pdf()`](https://strategicprojects.github.io/crawlee/reference/cr_on_pdf.md)
   : Register a PDF handler
 
+## RAG
+
+Chunk, embed and export text for retrieval.
+
+- [`cr_chunk()`](https://strategicprojects.github.io/crawlee/reference/cr_chunk.md)
+  : Chunk text for retrieval-augmented generation
+- [`cr_embed()`](https://strategicprojects.github.io/crawlee/reference/cr_embed.md)
+  : Attach embeddings to chunks
+- [`cr_export()`](https://strategicprojects.github.io/crawlee/reference/cr_export.md)
+  : Export chunks (and embeddings) for retrieval
+
 ## Storage & queue
 
 Lower-level building blocks.
