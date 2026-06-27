@@ -19,10 +19,6 @@ test_that("verbs return the crawler invisibly and compose", {
   expect_false(is.null(cr$defaults$html))
 })
 
-test_that("cr_use_browser errors as not implemented", {
-  expect_error(cr_use_browser(crawler("https://x.com")), "not implemented")
-})
-
 test_that("dataset push/collect round-trips", {
   d <- Dataset$new()
   d$push(list(a = 1, b = "x"))

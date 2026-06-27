@@ -2,6 +2,15 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+## Milestone M4 — headless browser
+
+* `cr_use_browser()` renders JavaScript-heavy pages with a headless
+  Chrome/Chromium via \pkg{chromote}, with `wait` and `wait_selector` controls.
+  Handlers are unchanged (`ctx$page`, `enqueue_links()`); the context gains
+  `ctx$screenshot()`, saved to the [KeyValueStore].
+* Fetch backends are now unified behind a normalised internal `fetched`
+  object, so handlers behave identically regardless of HTTP vs browser.
+
 ## Milestone M3 — documents
 
 * Content-type aware dispatch: each response is classified (`html`, `pdf`,
@@ -44,4 +53,4 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 * Persistent dataset backends (DuckDB, Parquet) — the `backend` argument is
   accepted but currently stores in memory.
-* Headless browser (M4), RAG helpers (M5).
+* RAG helpers (M5).

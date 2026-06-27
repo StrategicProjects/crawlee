@@ -5,18 +5,20 @@
 #' running crawler.
 #'
 #' @return An environment with elements `request`, `response`, `page`, `kind`,
-#'   `content_type`, `log` and the methods `push_data()`, `enqueue_links()`,
-#'   `body_raw()`, `body_string()`, `pdf_text()` and `save_body()`.
+#'   `status`, `content_type`, `log` and the methods `push_data()`,
+#'   `enqueue_links()`, `body_raw()`, `body_string()`, `pdf_text()`,
+#'   `save_body()` and `screenshot()`.
 #' @keywords internal
 #' @noRd
-crawler_context <- function(crawler, request, response, page, logger,
-                            kind = "html", content_type = "") {
+crawler_context <- function(crawler, request, fetched, page, logger,
+                            kind = "html") {
   ctx <- new.env(parent = emptyenv())
   ctx$request <- request
-  ctx$response <- response
+  ctx$response <- fetched$response
   ctx$page <- page
   ctx$kind <- kind
-  ctx$content_type <- content_type
+  ctx$status <- fetched$status
+  ctx$content_type <- fetched$content_type
   ctx$log <- logger
 
   ctx$push_data <- function(data) {
@@ -24,19 +26,32 @@ crawler_context <- function(crawler, request, response, page, logger,
     invisible(ctx)
   }
 
-  ctx$body_raw <- function() httr2::resp_body_raw(response)
+  ctx$body_raw <- function() fetched$raw()
 
-  ctx$body_string <- function() httr2::resp_body_string(response)
+  ctx$body_string <- function() fetched$html()
 
   ctx$pdf_text <- function() {
     rlang::check_installed("pdftools", "to extract text from PDF documents.")
-    pdftools::pdf_text(httr2::resp_body_raw(response))
+    pdftools::pdf_text(fetched$raw())
   }
 
   ctx$save_body <- function(key = NULL, ext = NULL) {
     key <- key %||% request$url
     if (!is.null(ext)) key <- paste0(key, ".", sub("^\\.", "", ext))
-    crawler$get_kv()$set_raw(key, httr2::resp_body_raw(response))
+    crawler$get_kv()$set_raw(key, fetched$raw())
+  }
+
+  ctx$screenshot <- function(key = NULL) {
+    if (is.null(fetched$screenshot)) {
+      cli::cli_abort(
+        "Screenshots require the browser backend ({.fn cr_use_browser})."
+      )
+    }
+    key <- key %||% paste0(request$url, ".png")
+    if (!grepl("\\.png$", key)) key <- paste0(key, ".png")
+    path <- crawler$get_kv()$path_of(key)
+    fetched$screenshot(path)
+    path
   }
 
   ctx$enqueue_links <- function(selector = "a", glob = NULL, include = NULL,

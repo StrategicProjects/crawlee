@@ -12,6 +12,8 @@ crawler_default_options <- function() {
     respect_robots = TRUE,
     same_domain = TRUE,
     store_dir = NULL,
+    browser_wait = 0,
+    browser_wait_selector = NULL,
     log_level = "info"
   )
 }
@@ -110,6 +112,7 @@ Crawler <- R6::R6Class(
     #' @description Run the crawl until the queue drains or a limit is hit.
     run = function() {
       log <- private$logger
+      on.exit(private$close_browser(), add = TRUE)
       cli::cli_rule("crawlee - starting crawl")
       log$info("Mode: {.val {self$mode}} - pending: {self$queue$pending_count()}")
       max_req <- self$options$max_requests
@@ -133,6 +136,7 @@ Crawler <- R6::R6Class(
     logger = NULL,
     robots_cache = NULL,
     crawl_delay = 0,
+    browser = NULL,
 
     # Check (and cache, per host) whether a URL is crawlable per robots.txt.
     robots_check = function(url) {
@@ -174,25 +178,26 @@ Crawler <- R6::R6Class(
         self$stats$skipped <- self$stats$skipped + 1L
         return(invisible(NULL))
       }
-      resp <- tryCatch(private$fetch(req), error = function(e) e)
-      if (inherits(resp, "error")) {
+      fetched <- tryCatch(private$fetch(req), error = function(e) e)
+      if (inherits(fetched, "error")) {
         if (req$retry_count < self$options$max_retries) {
-          log$warn("Retry {.url {req$url}} ({conditionMessage(resp)})")
+          log$warn("Retry {.url {req$url}} ({conditionMessage(fetched)})")
           self$queue$reschedule(req)
         } else {
-          log$error("Failed {.url {req$url}}: {conditionMessage(resp)}")
+          log$error("Failed {.url {req$url}}: {conditionMessage(fetched)}")
           self$stats$failed <- self$stats$failed + 1L
         }
         return(invisible(NULL))
       }
-      ct <- tryCatch(httr2::resp_content_type(resp), error = function(e) "")
-      kind <- classify_content(ct, req$url)
+      kind <- classify_content(fetched$content_type, req$url)
       handler <- private$resolve_handler(req, kind)
       if (is.null(handler)) {
         log$debug("No handler for {req$url} (kind: {kind})")
       } else {
-        page <- if (kind == "html") private$parse(resp) else NULL
-        ctx <- crawler_context(self, req, resp, page, private$logger, kind, ct)
+        page <- if (kind == "html") {
+          tryCatch(xml2::read_html(fetched$html()), error = function(e) NULL)
+        }
+        ctx <- crawler_context(self, req, fetched, page, private$logger, kind)
         tryCatch(
           handler(ctx),
           error = function(e) {
@@ -202,7 +207,7 @@ Crawler <- R6::R6Class(
       }
       self$queue$mark_handled()
       self$stats$succeeded <- self$stats$succeeded + 1L
-      log$info("{.url {req$url}} -> {httr2::resp_status(resp)} ({kind})")
+      log$info("{.url {req$url}} -> {fetched$status} ({kind})")
       invisible(NULL)
     },
 
@@ -213,24 +218,49 @@ Crawler <- R6::R6Class(
       self$defaults[[kind]] %||% self$defaults[["any"]]
     },
 
+    # Dispatch to the active fetch backend, returning a normalised `fetched`.
     fetch = function(req) {
-      httr2::request(req$url) |>
+      if (identical(self$mode, "browser")) {
+        private$fetch_browser(req)
+      } else {
+        private$fetch_http(req)
+      }
+    },
+
+    fetch_http = function(req) {
+      resp <- httr2::request(req$url) |>
         httr2::req_method(req$method) |>
         httr2::req_user_agent(self$options$user_agent) |>
         httr2::req_timeout(self$options$timeout) |>
         httr2::req_retry(max_tries = 1L) |>
         httr2::req_perform()
+      fetched_response(resp)
     },
 
-    parse = function(resp) {
-      ct <- tryCatch(httr2::resp_content_type(resp), error = function(e) "")
-      if (isTRUE(grepl("html|xml", ct))) {
-        return(tryCatch(
-          xml2::read_html(httr2::resp_body_string(resp)),
-          error = function(e) NULL
-        ))
+    fetch_browser = function(req) {
+      private$ensure_browser()
+      browser_fetch(
+        private$browser, req$url,
+        wait = self$options$browser_wait,
+        wait_selector = self$options$browser_wait_selector,
+        timeout = self$options$timeout
+      )
+    },
+
+    ensure_browser = function() {
+      if (is.null(private$browser)) {
+        rlang::check_installed("chromote", "for the browser backend.")
+        private$browser <- chromote::ChromoteSession$new()
       }
-      NULL
+      invisible(private$browser)
+    },
+
+    close_browser = function() {
+      if (!is.null(private$browser)) {
+        try(private$browser$close(), silent = TRUE)
+        private$browser <- NULL
+      }
+      invisible(NULL)
     }
   )
 )
@@ -286,24 +316,6 @@ cr_use_http <- function(crawler) {
   check_crawler(crawler)
   crawler$mode <- "http"
   invisible(crawler)
-}
-
-#' Use the headless-browser fetch backend
-#'
-#' Reserved for a future release: rendering JavaScript-heavy pages via
-#' `chromote`. Calling it currently signals an informative not-yet-implemented
-#' error so pipelines fail loudly rather than silently using HTTP.
-#'
-#' @param crawler A [Crawler].
-#'
-#' @return The crawler, invisibly.
-#' @export
-cr_use_browser <- function(crawler) {
-  check_crawler(crawler)
-  cli::cli_abort(c(
-    "The {.val browser} backend is not implemented yet.",
-    "i" = "It is planned for a future release (chromote-based)."
-  ))
 }
 
 #' Configure the dataset backend
