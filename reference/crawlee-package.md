@@ -34,7 +34,3 @@ Authors:
 - Carlos Amorin <carlos.agaf@ufpe.br>
 
 - Diogo Bezerra <diogo.bezerra@ufpe.br>
-
-- Tiago Pereira <tiago.pereira@tesouro.gov.br>
-
-- Fernando Barbalho <fbarbalho@gmail.com>
