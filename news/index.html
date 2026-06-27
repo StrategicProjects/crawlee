@@ -37,7 +37,16 @@
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crawlee-0009000-development">crawlee 0.0.0.9000 (development)<a class="anchor" aria-label="anchor" href="#crawlee-0009000-development"></a></h2>
 <p>First scaffold of the package. Crawlee-inspired, native-R architecture.</p>
 <div class="section level3">
-<h3 id="milestone-m1--core-in-progress-0-0-0-9000">Milestone M1 — core (in progress)<a class="anchor" aria-label="anchor" href="#milestone-m1--core-in-progress-0-0-0-9000"></a></h3>
+<h3 id="milestone-m2--discovery-0-0-0-9000">Milestone M2 — discovery<a class="anchor" aria-label="anchor" href="#milestone-m2--discovery-0-0-0-9000"></a></h3>
+<ul><li>
+<code><a href="../reference/cr_from_sitemap.html">cr_from_sitemap()</a></code> enqueues URLs from a <code>sitemap.xml</code>, recursing into sitemap indexes, transparently handling gzipped sitemaps, with glob filters and a <code>since</code> filter on <code>&lt;lastmod&gt;</code> for incremental crawls.</li>
+<li>
+<code><a href="../reference/cr_from_rss.html">cr_from_rss()</a></code> enqueues items from RSS and Atom feeds, carrying item title and date into the request’s <code>user_data</code>.</li>
+<li>
+<code>robots.txt</code> is now enforced when <code>respect_robots = TRUE</code> (the default): a native parser/matcher (User-agent grouping, <code>*</code>/<code>$</code> patterns, longest-match with Allow override, Crawl-delay), cached per host. Disallowed URLs are skipped and reported; <code>Crawl-delay</code> is honoured.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="milestone-m1--core-0-0-0-9000">Milestone M1 — core<a class="anchor" aria-label="anchor" href="#milestone-m1--core-0-0-0-9000"></a></h3>
 <ul><li>
 <code><a href="../reference/crawler.html">crawler()</a></code> builds a stateful, pipe-friendly crawler.</li>
 <li>
@@ -54,10 +63,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="not-implemented-yet-roadmap-0-0-0-9000">Not implemented yet (roadmap)<a class="anchor" aria-label="anchor" href="#not-implemented-yet-roadmap-0-0-0-9000"></a></h3>
-<ul><li>
-<code>respect_robots</code> option is accepted but not yet enforced (planned M2).</li>
-<li>Persistent dataset backends (DuckDB, Parquet) — the <code>backend</code> argument is accepted but currently stores in memory (planned M1/M2).</li>
-<li>Sitemap and RSS discovery (M2), PDF handlers (M3), headless browser (M4), RAG helpers (M5).</li>
+<ul><li>Persistent dataset backends (DuckDB, Parquet) — the <code>backend</code> argument is accepted but currently stores in memory.</li>
+<li>PDF handlers (M3), headless browser (M4), RAG helpers (M5).</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

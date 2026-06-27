@@ -19,6 +19,15 @@ Build, configure and run a crawler.
 - [`cr_collect()`](https://strategicprojects.github.io/crawlee/reference/cr_collect.md)
   : Collect crawl results
 
+## Discovery
+
+Seed the queue from sitemaps and feeds.
+
+- [`cr_from_sitemap()`](https://strategicprojects.github.io/crawlee/reference/cr_from_sitemap.md)
+  : Discover URLs from a sitemap
+- [`cr_from_rss()`](https://strategicprojects.github.io/crawlee/reference/cr_from_rss.md)
+  : Discover URLs from an RSS or Atom feed
+
 ## Handlers
 
 Register handlers and act on fetched content.
