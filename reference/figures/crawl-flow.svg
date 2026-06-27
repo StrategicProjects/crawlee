@@ -26,8 +26,8 @@
   <rect x="1" y="1" width="978" height="418" rx="16" fill="#f5fbf8" stroke="#d8efe4"/>
 
   <!-- enqueue_links loop (drawn first, behind) -->
-  <path class="loop" d="M845,200 C845,150 845,150 845,150 L845,28 L320,28 L320,66" marker-end="url(#arrowLoop)"/>
-  <text class="llabel" x="560" y="22" text-anchor="middle">enqueue_links() — discover &amp; re-queue</text>
+  <path class="loop" d="M950,231 H963 V34 H320 V66" marker-end="url(#arrowLoop)"/>
+  <text class="llabel" x="540" y="25" text-anchor="middle">enqueue_links() — discover &amp; re-queue</text>
 
   <!-- top lane -->
   <g>
@@ -67,13 +67,13 @@
     <text class="stagetxt" x="855" y="226" text-anchor="middle">Handler (ctx)</text>
     <text class="sub" x="855" y="245" text-anchor="middle">your scraping code</text>
 
-    <rect class="store" x="540" y="200" width="170" height="62" rx="10"/>
-    <text class="storetxt" x="625" y="226" text-anchor="middle">Dataset</text>
-    <text class="storesub" x="625" y="245" text-anchor="middle">memory · jsonl · duckdb</text>
+    <rect class="store" x="470" y="200" width="170" height="62" rx="10"/>
+    <text class="storetxt" x="555" y="226" text-anchor="middle">Dataset</text>
+    <text class="storesub" x="555" y="245" text-anchor="middle">memory · jsonl · duckdb</text>
 
-    <rect class="store" x="280" y="200" width="170" height="62" rx="10"/>
-    <text class="storetxt" x="365" y="226" text-anchor="middle">cr_collect()</text>
-    <text class="storesub" x="365" y="245" text-anchor="middle">→ tibble</text>
+    <rect class="store" x="250" y="200" width="170" height="62" rx="10"/>
+    <text class="storetxt" x="335" y="226" text-anchor="middle">cr_collect()</text>
+    <text class="storesub" x="335" y="245" text-anchor="middle">→ tibble</text>
 
     <rect class="store" x="30" y="200" width="190" height="62" rx="10"/>
     <text class="storetxt" x="125" y="226" text-anchor="middle">RAG</text>
@@ -81,11 +81,11 @@
   </g>
 
   <!-- handler -> dataset (push_data) -->
-  <line class="edge" x1="760" y1="231" x2="710" y2="231" marker-end="url(#arrow)"/>
-  <text class="elabel" x="735" y="190" text-anchor="middle">push_data()</text>
+  <line class="edge" x1="760" y1="231" x2="640" y2="231" marker-end="url(#arrow)"/>
+  <text class="elabel" x="700" y="222" text-anchor="middle">push_data()</text>
   <!-- dataset -> collect -> rag -->
-  <line class="edge" x1="540" y1="231" x2="450" y2="231" marker-end="url(#arrow)"/>
-  <line class="edge" x1="280" y1="231" x2="220" y2="231" marker-end="url(#arrow)"/>
+  <line class="edge" x1="470" y1="231" x2="420" y2="231" marker-end="url(#arrow)"/>
+  <line class="edge" x1="250" y1="231" x2="220" y2="231" marker-end="url(#arrow)"/>
 
   <!-- caption -->
   <line x1="30" y1="300" x2="950" y2="300" stroke="#d8efe4" stroke-width="1.5"/>
