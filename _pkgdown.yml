@@ -31,6 +31,12 @@ reference:
     contents:
       - cr_on_html
       - cr_on_pdf
+  - title: RAG
+    desc: Chunk, embed and export text for retrieval.
+    contents:
+      - cr_chunk
+      - cr_embed
+      - cr_export
   - title: Storage & queue
     desc: Lower-level building blocks.
     contents:

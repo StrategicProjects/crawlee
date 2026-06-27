@@ -32,6 +32,7 @@ Suggests:
     dplyr,
     duckdb,
     httptest2,
+    jsonlite,
     knitr,
     nanoparquet,
     pdftools,

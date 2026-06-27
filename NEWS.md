@@ -2,6 +2,16 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+## Milestone M5 — RAG
+
+* `cr_chunk()` splits text (a character vector or a data-frame column) into
+  overlapping chunks, by character or word, carrying metadata per chunk.
+* `cr_embed()` attaches an `embedding` list-column via a user-supplied,
+  provider-agnostic embedding function, applied in batches. crawlee never
+  calls an external service itself.
+* `cr_export()` writes chunks (and embeddings) to Parquet, JSONL, CSV or
+  DuckDB for retrieval.
+
 ## Milestone M4 — headless browser
 
 * `cr_use_browser()` renders JavaScript-heavy pages with a headless
@@ -51,6 +61,7 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 ## Not implemented yet (roadmap)
 
-* Persistent dataset backends (DuckDB, Parquet) — the `backend` argument is
-  accepted but currently stores in memory.
-* RAG helpers (M5).
+* Persistent, resumable dataset backends (DuckDB, Parquet) — the `cr_dataset()`
+  `backend` argument is accepted but currently stores in memory. (Note: chunk
+  exports already support these via `cr_export()`.)
+* Parallel/autoscaled fetching (currently sequential with rate limiting).
