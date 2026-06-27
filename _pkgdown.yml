@@ -1,0 +1,35 @@
+url: https://strategicprojects.github.io/crawlee/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#0b6e4f"
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: Crawler
+    desc: Build, configure and run a crawler.
+    contents:
+      - crawler
+      - cr_options
+      - cr_use_http
+      - cr_use_browser
+      - cr_dataset
+      - cr_run
+      - cr_collect
+  - title: Handlers
+    desc: Register handlers and act on fetched content.
+    contents:
+      - cr_on_html
+  - title: Storage & queue
+    desc: Lower-level building blocks.
+    contents:
+      - RequestQueue
+      - Dataset
+  - title: Utilities
+    contents:
+      - cr_normalize_url

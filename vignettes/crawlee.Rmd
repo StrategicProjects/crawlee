@@ -1,0 +1,83 @@
+---
+title: "Getting started with crawlee"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with crawlee}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(crawlee)
+```
+
+## The mental model
+
+crawlee mirrors the architecture of [Crawlee](https://crawlee.dev) in pure R.
+A **crawler** owns:
+
+- a **request queue** — a deduplicating, resumable list of URLs to visit;
+- one or more **handlers** — functions run on each fetched page;
+- a **dataset** — the structured records your handlers produce.
+
+You build a crawler with `crawler()` and configure it with `cr_*` verbs that
+compose through the native pipe (`|>`).
+
+## A minimal crawl
+
+```{r, eval = FALSE}
+resultado <- crawler("https://example.com") |>
+  cr_options(delay = 0.5, max_depth = 2) |>
+  cr_use_http() |>
+  cr_on_html(function(ctx) {
+    ctx$push_data(list(
+      url    = ctx$request$url,
+      titulo = ctx$page |> rvest::html_element("h1") |> rvest::html_text2()
+    ))
+    ctx$enqueue_links()
+  }) |>
+  cr_run() |>
+  cr_collect()
+```
+
+## The handler context
+
+Every handler receives a context object, conventionally named `ctx`:
+
+| Element | Description |
+|---------|-------------|
+| `ctx$request` | The current request (`url`, `label`, `depth`, ...). |
+| `ctx$response` | The raw `httr2` response. |
+| `ctx$page` | The parsed page (`xml_document`) for HTML/XML, else `NULL`. |
+| `ctx$push_data(data)` | Append a record (list or data frame) to the dataset. |
+| `ctx$enqueue_links(...)` | Discover and enqueue links from the page. |
+| `ctx$log` | Logging helpers (`info()`, `success()`, `warn()`, `error()`). |
+
+### Controlling link discovery
+
+`enqueue_links()` accepts `glob`, `include`/`exclude` patterns and a
+`same_domain` flag (on by default), so you only follow the links you care
+about:
+
+```{r, eval = FALSE}
+ctx$enqueue_links(
+  glob    = "*/noticias/*",
+  exclude = "*/tag/*",
+  label   = "noticia"
+)
+```
+
+Requests enqueued with a `label` are routed to the matching handler registered
+with `cr_on_html(..., label = "noticia")`.
+
+## Reproducibility
+
+The request queue deduplicates URLs by a normalised key (see
+`cr_normalize_url()`), so the same page is never fetched twice and crawls are
+deterministic. Persistent, resumable storage backends (DuckDB, Parquet) are on
+the roadmap.
+```

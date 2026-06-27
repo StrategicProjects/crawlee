@@ -1,0 +1,12 @@
+^crawlee\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^README\.Rmd$
+^\.claude$
+^LICENSE\.md$
+^\.git$
+^scratchpad$
+^\.DS_Store$

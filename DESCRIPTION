@@ -1,0 +1,46 @@
+Package: crawlee
+Title: A Tidy R Interface for Reproducible Web Crawling
+Version: 0.0.0.9000
+Authors@R:
+    person("André", "Leite", , "leite@de.ufpe.br", role = c("aut", "cre"))
+Description: A tidy, pipe-friendly toolkit for reproducible web crawling
+    and structured data collection, inspired by the architecture of the
+    'Crawlee' library. Provides a unified crawler with a deduplicating,
+    resumable request queue, content-type aware handlers, structured
+    storage backends and rich console logging via 'cli'. Designed for the
+    collection and analysis of public and governmental data from HTML
+    pages, sitemaps, RSS feeds and PDF documents.
+License: MIT + file LICENSE
+URL: https://github.com/StrategicProjects/crawlee,
+    https://strategicprojects.github.io/crawlee/
+BugReports: https://github.com/StrategicProjects/crawlee/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    cli,
+    httr2,
+    R6,
+    rlang,
+    rvest,
+    tibble,
+    vctrs,
+    xml2
+Suggests:
+    arrow,
+    chromote,
+    DBI,
+    dplyr,
+    duckdb,
+    httptest2,
+    knitr,
+    nanoparquet,
+    pdftools,
+    polite,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder:
+    knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
