@@ -8,3 +8,8 @@ inst/doc
 /storage/
 *.duckdb
 *.parquet
+
+# Claude Code (local only)
+/.claude/
+CLAUDE.md
+memory/

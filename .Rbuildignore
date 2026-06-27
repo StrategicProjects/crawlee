@@ -11,3 +11,5 @@
 ^scratchpad$
 ^\.DS_Store$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
+^CLAUDE\.md$
