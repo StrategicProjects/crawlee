@@ -75,16 +75,17 @@ resultado
 
 ## Roadmap
 
-| Milestone | Scope                                               | Status |
-|-----------|-----------------------------------------------------|--------|
-| **M1**    | Core: queue, HTTP, HTML handlers, dataset, cli logs | ✅     |
-| **M2**    | Sitemap & RSS discovery, robots.txt enforcement     | ✅     |
-| **M3**    | PDF / document handlers (`pdftools`)                | ✅     |
-| **M4**    | Headless browser backend (`chromote`)               | ✅     |
-| **M5**    | RAG helpers (chunking, embeddings, export)          | ✅     |
-
-Next: persistent/resumable dataset backends (DuckDB, Parquet) and
-parallel/autoscaled fetching.
+| Milestone | Scope | Status |
+|----|----|----|
+| **M1** | Core: queue, HTTP, HTML handlers, dataset, cli logs | ✅ |
+| **M2** | Sitemap & RSS discovery, robots.txt enforcement | ✅ |
+| **M3** | PDF / document handlers (`pdftools`) | ✅ |
+| **M4** | Headless browser backend (`chromote`) | ✅ |
+| **M5** | RAG helpers (chunking, embeddings, export) | ✅ |
+| **M6** | Persistent & resumable storage (jsonl/duckdb, [`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md)) | ✅ |
+| **M7** | Parallel fetching ([`cr_parallel()`](https://strategicprojects.github.io/crawlee/reference/cr_parallel.md)) | ✅ |
+| **M8** | Autoscaling ([`cr_autoscale()`](https://strategicprojects.github.io/crawlee/reference/cr_autoscale.md)) & streaming pool ([`cr_stream()`](https://strategicprojects.github.io/crawlee/reference/cr_stream.md)) | ✅ |
+| **M9** | Adaptive streaming + per-host pacing | ✅ |
 
 ## License
 

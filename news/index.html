@@ -43,6 +43,12 @@
 <h2 class="pkg-version" data-toc-text="0.1.0" id="crawlee-010">crawlee 0.1.0<a class="anchor" aria-label="anchor" href="#crawlee-010"></a></h2>
 <p>First release. A tidy, native-R, Crawlee-inspired toolkit for reproducible web crawling.</p>
 <div class="section level3">
+<h3 id="milestone-m9--adaptive--polite-streaming-0-1-0">Milestone M9 — adaptive &amp; polite streaming<a class="anchor" aria-label="anchor" href="#milestone-m9--adaptive--polite-streaming-0-1-0"></a></h3>
+<ul><li>
+<code>cr_stream(adaptive = TRUE, min, max)</code> adapts the streaming pool’s in-flight target at run time (AIMD on back-pressure), like <code><a href="../reference/cr_autoscale.html">cr_autoscale()</a></code> but for the continuous scheduler.</li>
+<li>The streaming engine now paces launches <strong>per host</strong> (<code>delay</code> / <code>robots.txt</code> <code>Crawl-delay</code>): a host is not hit again until its interval has elapsed, while different hosts keep running in parallel.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-m8--autoscaling--streaming-0-1-0">Milestone M8 — autoscaling &amp; streaming<a class="anchor" aria-label="anchor" href="#milestone-m8--autoscaling--streaming-0-1-0"></a></h3>
 <ul><li>
 <code>cr_autoscale(min, max)</code> adapts the parallel batch concurrency at run time (Crawlee autoscaled-pool style): additive-increase on clean batches, multiplicative-decrease on back-pressure (a transport failure or HTTP 429/500/502/503/504), clamped to <code>[min, max]</code>.</li>
@@ -111,12 +117,6 @@
 <li>
 <code>Dataset</code> append-only store; <code><a href="../reference/cr_run.html">cr_run()</a></code> drives the crawl and <code><a href="../reference/cr_collect.html">cr_collect()</a></code> returns a tibble.</li>
 <li>Rich console logging via <code>cli</code>.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone-m9--adaptive--polite-streaming-0-1-0">Milestone M9 — adaptive &amp; polite streaming<a class="anchor" aria-label="anchor" href="#milestone-m9--adaptive--polite-streaming-0-1-0"></a></h3>
-<ul><li>
-<code>cr_stream(adaptive = TRUE, min, max)</code> adapts the streaming pool’s in-flight target at run time (AIMD on back-pressure), like <code><a href="../reference/cr_autoscale.html">cr_autoscale()</a></code> but for the continuous scheduler.</li>
-<li>The streaming engine now paces launches <strong>per host</strong> (<code>delay</code> / <code>robots.txt</code> <code>Crawl-delay</code>): a host is not hit again until its interval has elapsed, while different hosts keep running in parallel.</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -130,6 +130,11 @@
 <h2 id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
 </h2>
 <table class="table">
+<colgroup>
+<col width="42%">
+<col width="26%">
+<col width="30%">
+</colgroup>
 <thead><tr>
 <th>Milestone</th>
 <th>Scope</th>
@@ -161,9 +166,28 @@
 <td>RAG helpers (chunking, embeddings, export)</td>
 <td>✅</td>
 </tr>
+<tr>
+<td><strong>M6</strong></td>
+<td>Persistent &amp; resumable storage (jsonl/duckdb, <code><a href="reference/cr_persist.html">cr_persist()</a></code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>M7</strong></td>
+<td>Parallel fetching (<code><a href="reference/cr_parallel.html">cr_parallel()</a></code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>M8</strong></td>
+<td>Autoscaling (<code><a href="reference/cr_autoscale.html">cr_autoscale()</a></code>) &amp; streaming pool (<code><a href="reference/cr_stream.html">cr_stream()</a></code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>M9</strong></td>
+<td>Adaptive streaming + per-host pacing</td>
+<td>✅</td>
+</tr>
 </tbody>
 </table>
-<p>Next: persistent/resumable dataset backends (DuckDB, Parquet) and parallel/autoscaled fetching.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
