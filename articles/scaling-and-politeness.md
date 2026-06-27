@@ -1,0 +1,117 @@
+# Scaling and politeness
+
+``` r
+
+library(crawlee)
+```
+
+This article covers the two sides of crawling at scale, following
+[Crawlee](https://crawlee.dev)’s *Scaling our crawlers* and *Avoid
+getting blocked* guides: going **faster** (concurrency) while staying
+**polite** (rate limits and `robots.txt`).
+
+## Being a good web citizen
+
+By default crawlee is conservative and respectful:
+
+- **`robots.txt` is honoured** (`respect_robots = TRUE`): disallowed
+  URLs are skipped, and a `Crawl-delay` directive is applied.
+- set a descriptive **`user_agent`** so site owners can identify your
+  crawler;
+- **`delay`** adds a pause between requests;
+- **`max_requests`** and **`max_depth`** bound the crawl;
+- failed requests are **retried** (`max_retries`) with backoff.
+
+``` r
+
+crawler("https://books.toscrape.com/") |>
+  cr_options(
+    user_agent = "my-research-bot (you@example.com)",
+    delay = 0.5, # seconds between requests
+    max_requests = 500,
+    max_depth = 4,
+    respect_robots = TRUE
+  ) |>
+  cr_on_html(function(ctx) ctx$enqueue_links()) |>
+  cr_run()
+```
+
+## Going faster
+
+The default engine is sequential. For higher throughput there are three
+concurrent engines; all keep handlers running sequentially in R (so your
+dataset and queue are never touched concurrently) — only the network I/O
+runs in parallel.
+
+### Fixed-concurrency batches — `cr_parallel()`
+
+Drains the queue in batches whose network requests run together.
+
+``` r
+
+crawler("https://books.toscrape.com/") |>
+  cr_parallel(concurrency = 8) |>
+  cr_on_html(function(ctx) ctx$enqueue_links()) |>
+  cr_run()
+```
+
+### Adaptive batches — `cr_autoscale()`
+
+Like
+[`cr_parallel()`](https://strategicprojects.github.io/crawlee/reference/cr_parallel.md),
+but the batch size adapts at run time (additive-increase on clean
+batches, halving on back-pressure such as HTTP 429/503 or transport
+failures), staying within `[min, max]`.
+
+``` r
+
+crawler("https://books.toscrape.com/") |>
+  cr_autoscale(min = 2, max = 16) |>
+  cr_on_html(function(ctx) ctx$enqueue_links()) |>
+  cr_run()
+```
+
+### Continuous streaming pool — `cr_stream()`
+
+Keeps `concurrency` requests in flight at all times: the moment one
+finishes, its handler runs and the next request is pulled in. This
+avoids the batch engines’ “wait for the slowest request in the batch”
+stall and shines when response latency varies a lot.
+
+``` r
+
+crawler("https://books.toscrape.com/") |>
+  cr_stream(concurrency = 10) |>
+  cr_on_html(function(ctx) ctx$enqueue_links()) |>
+  cr_run()
+```
+
+## Choosing an engine
+
+| Engine | When to use |
+|----|----|
+| sequential (default) | small crawls; strict per-request pacing |
+| [`cr_parallel()`](https://strategicprojects.github.io/crawlee/reference/cr_parallel.md) | steady throughput with a known good concurrency |
+| [`cr_autoscale()`](https://strategicprojects.github.io/crawlee/reference/cr_autoscale.md) | unknown/variable server capacity — let it find the level |
+| [`cr_stream()`](https://strategicprojects.github.io/crawlee/reference/cr_stream.md) | many pages with widely varying latency; maximum throughput |
+
+> Concurrency and politeness pull in opposite directions. The batch
+> engines apply `delay` / `Crawl-delay` between batches; the streaming
+> engine treats concurrency itself as the throttle and does not enforce
+> per-request pacing. For strict rate limits, prefer a batch engine with
+> a `delay`.
+
+## Combining with persistence
+
+Any engine composes with
+[`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md)
+for resumable, checkpointed runs:
+
+``` r
+
+crawler("https://books.toscrape.com/") |>
+  cr_autoscale(min = 2, max = 16) |>
+  cr_persist("runs/books", dataset = "duckdb") |>
+  cr_on_html(function(ctx) ctx$enqueue_links()) |>
+  cr_run()
+```
