@@ -88,9 +88,10 @@ resultado
 | **M3** | PDF / document handlers (`pdftools`) | ✅ |
 | **M4** | Headless browser backend (`chromote`) | ✅ |
 | **M5** | RAG helpers (chunking, embeddings, export) | ✅ |
-
-Next: persistent/resumable dataset backends (DuckDB, Parquet) and
-parallel/autoscaled fetching.
+| **M6** | Persistent & resumable storage (jsonl/duckdb, `cr_persist()`) | ✅ |
+| **M7** | Parallel fetching (`cr_parallel()`) | ✅ |
+| **M8** | Autoscaling (`cr_autoscale()`) & streaming pool (`cr_stream()`) | ✅ |
+| **M9** | Adaptive streaming + per-host pacing | ✅ |
 
 ## License
 
