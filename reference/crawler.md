@@ -38,5 +38,5 @@ cr
 #> <Crawler> ("http" mode)
 #> • pending requests: 1
 #> • handled: 0 - records: 0
-#> • handlers: 0 labelled
+#> • handlers: 0 labelled - defaults: none
 ```

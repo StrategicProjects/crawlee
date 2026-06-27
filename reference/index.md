@@ -34,6 +34,8 @@ Register handlers and act on fetched content.
 
 - [`cr_on_html()`](https://strategicprojects.github.io/crawlee/reference/cr_on_html.md)
   : Register an HTML handler
+- [`cr_on_pdf()`](https://strategicprojects.github.io/crawlee/reference/cr_on_pdf.md)
+  : Register a PDF handler
 
 ## Storage & queue
 
@@ -46,6 +48,10 @@ Lower-level building blocks.
   : Request queue
 - [`Dataset`](https://strategicprojects.github.io/crawlee/reference/Dataset.md)
   : Dataset
+- [`cr_store()`](https://strategicprojects.github.io/crawlee/reference/cr_store.md)
+  : Configure the key-value store for binary content
+- [`KeyValueStore`](https://strategicprojects.github.io/crawlee/reference/KeyValueStore.md)
+  : Key-value store
 
 ## Utilities
 

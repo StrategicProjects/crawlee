@@ -37,6 +37,14 @@
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crawlee-0009000-development">crawlee 0.0.0.9000 (development)<a class="anchor" aria-label="anchor" href="#crawlee-0009000-development"></a></h2>
 <p>First scaffold of the package. Crawlee-inspired, native-R architecture.</p>
 <div class="section level3">
+<h3 id="milestone-m3--documents-0-0-0-9000">Milestone M3 — documents<a class="anchor" aria-label="anchor" href="#milestone-m3--documents-0-0-0-9000"></a></h3>
+<ul><li>Content-type aware dispatch: each response is classified (<code>html</code>, <code>pdf</code>, <code>other</code>) and routed to the matching default handler; explicit request labels still take precedence.</li>
+<li>
+<code><a href="../reference/cr_on_pdf.html">cr_on_pdf()</a></code> registers a PDF handler. Its context adds <code>pdf_text()</code> (per-page text via ), <code>body_raw()</code>/<code>body_string()</code> and <code>save_body()</code>.</li>
+<li>
+<code>KeyValueStore</code> plus <code><a href="../reference/cr_store.html">cr_store()</a></code> and <code>ctx$save_body()</code>: persist raw responses (PDFs, images, snapshots) on disk alongside the structured dataset.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-m2--discovery-0-0-0-9000">Milestone M2 — discovery<a class="anchor" aria-label="anchor" href="#milestone-m2--discovery-0-0-0-9000"></a></h3>
 <ul><li>
 <code><a href="../reference/cr_from_sitemap.html">cr_from_sitemap()</a></code> enqueues URLs from a <code>sitemap.xml</code>, recursing into sitemap indexes, transparently handling gzipped sitemaps, with glob filters and a <code>since</code> filter on <code>&lt;lastmod&gt;</code> for incremental crawls.</li>
@@ -64,7 +72,7 @@
 <div class="section level3">
 <h3 id="not-implemented-yet-roadmap-0-0-0-9000">Not implemented yet (roadmap)<a class="anchor" aria-label="anchor" href="#not-implemented-yet-roadmap-0-0-0-9000"></a></h3>
 <ul><li>Persistent dataset backends (DuckDB, Parquet) — the <code>backend</code> argument is accepted but currently stores in memory.</li>
-<li>PDF handlers (M3), headless browser (M4), RAG helpers (M5).</li>
+<li>Headless browser (M4), RAG helpers (M5).</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

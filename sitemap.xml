@@ -9,6 +9,7 @@
 <url><loc>https://strategicprojects.github.io/crawlee/news/index.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/Crawler-class.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/Dataset.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/KeyValueStore.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/RequestQueue.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_collect.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_dataset.html</loc></url>
@@ -16,8 +17,10 @@
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_from_sitemap.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_normalize_url.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_on_html.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_on_pdf.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_options.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_run.html</loc></url>
+<url><loc>https://strategicprojects.github.io/crawlee/reference/cr_store.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_use_browser.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/cr_use_http.html</loc></url>
 <url><loc>https://strategicprojects.github.io/crawlee/reference/crawlee-package.html</loc></url>

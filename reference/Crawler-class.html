@@ -69,8 +69,13 @@ native pipe (<code>|&gt;</code>).</p>
 <dd><p>Named list of label-specific handlers.</p></dd>
 
 
-    <dt><code>default_handler</code></dt>
-<dd><p>Handler used when no label matches.</p></dd>
+    <dt><code>defaults</code></dt>
+<dd><p>Named list of default handlers by content kind
+(<code>html</code>, <code>pdf</code>, <code>any</code>).</p></dd>
+
+
+    <dt><code>kv</code></dt>
+<dd><p>Lazily-created <a href="KeyValueStore.html">KeyValueStore</a> for binary content.</p></dd>
 
 
     <dt><code>mode</code></dt>
@@ -91,6 +96,7 @@ native pipe (<code>|&gt;</code>).</p>
 <p></p><ul><li><p><a href="#method-Crawler-initialize"><code>Crawler$new()</code></a></p></li>
 <li><p><a href="#method-Crawler-set_options"><code>Crawler$set_options()</code></a></p></li>
 <li><p><a href="#method-Crawler-set_handler"><code>Crawler$set_handler()</code></a></p></li>
+<li><p><a href="#method-Crawler-get_kv"><code>Crawler$get_kv()</code></a></p></li>
 <li><p><a href="#method-Crawler-run"><code>Crawler$run()</code></a></p></li>
 <li><p><a href="#method-Crawler-clone"><code>Crawler$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-Crawler-initialize"></a><div class="section">
@@ -130,16 +136,20 @@ native pipe (<code>|&gt;</code>).</p>
 
 <p></p><hr><a id="method-Crawler-set_handler"></a><div class="section">
 <h3 id="crawler-set-handler-"><code>Crawler$set_handler()</code><a class="anchor" aria-label="anchor" href="#crawler-set-handler-"></a></h3>
-<p>Register a handler for a content label.</p><div class="section">
+<p>Register a handler for a content label or kind.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Crawler</span><span class="op">$</span><span class="fu">set_handler</span><span class="op">(</span><span class="va">handler</span>, label <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Crawler</span><span class="op">$</span><span class="fu">set_handler</span><span class="op">(</span><span class="va">handler</span>, label <span class="op">=</span> <span class="cn">NULL</span>, kind <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>handler</code></dt>
 <dd><p>A function of one argument, the handler context.</p></dd>
 
       <dt><code>label</code></dt>
-<dd><p>Optional label; <code>NULL</code> registers the default handler.</p></dd>
+<dd><p>Optional label; <code>NULL</code> registers a default handler.</p></dd>
+
+      <dt><code>kind</code></dt>
+<dd><p>Content kind for the default handler (<code>"html"</code>, <code>"pdf"</code>,
+<code>"any"</code>). Ignored when <code>label</code> is given.</p></dd>
 
 
 </dl><p></p></div>
@@ -147,10 +157,22 @@ native pipe (<code>|&gt;</code>).</p>
 
 </div>
 
+<p></p><hr><a id="method-Crawler-get_kv"></a><div class="section">
+<h3 id="crawler-get-kv-"><code>Crawler$get_kv()</code><a class="anchor" aria-label="anchor" href="#crawler-get-kv-"></a></h3>
+<p>Get (lazily creating) the key-value store for binaries.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Crawler</span><span class="op">$</span><span class="fu">get_kv</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>A <a href="KeyValueStore.html">KeyValueStore</a>.</p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-Crawler-run"></a><div class="section">
 <h3 id="crawler-run-"><code>Crawler$run()</code><a class="anchor" aria-label="anchor" href="#crawler-run-"></a></h3>
 <p>Run the crawl until the queue drains or a limit is hit.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Crawler</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -159,7 +181,7 @@ native pipe (<code>|&gt;</code>).</p>
 <p></p><hr><a id="method-Crawler-clone"></a><div class="section">
 <h3 id="crawler-clone-"><code>Crawler$clone()</code><a class="anchor" aria-label="anchor" href="#crawler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Crawler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>

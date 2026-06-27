@@ -27,9 +27,15 @@ with the native pipe (`|>`).
 
   Named list of label-specific handlers.
 
-- `default_handler`:
+- `defaults`:
 
-  Handler used when no label matches.
+  Named list of default handlers by content kind (`html`, `pdf`, `any`).
+
+- `kv`:
+
+  Lazily-created
+  [KeyValueStore](https://strategicprojects.github.io/crawlee/reference/KeyValueStore.md)
+  for binary content.
 
 - `mode`:
 
@@ -48,6 +54,8 @@ with the native pipe (`|>`).
 - [`Crawler$set_options()`](#method-Crawler-set_options)
 
 - [`Crawler$set_handler()`](#method-Crawler-set_handler)
+
+- [`Crawler$get_kv()`](#method-Crawler-get_kv)
 
 - [`Crawler$run()`](#method-Crawler-run)
 
@@ -94,11 +102,11 @@ Update one or more options.
 
 ### `Crawler$set_handler()`
 
-Register a handler for a content label.
+Register a handler for a content label or kind.
 
 #### Usage
 
-    Crawler$set_handler(handler, label = NULL)
+    Crawler$set_handler(handler, label = NULL, kind = "html")
 
 #### Arguments
 
@@ -108,7 +116,27 @@ Register a handler for a content label.
 
 - `label`:
 
-  Optional label; `NULL` registers the default handler.
+  Optional label; `NULL` registers a default handler.
+
+- `kind`:
+
+  Content kind for the default handler (`"html"`, `"pdf"`, `"any"`).
+  Ignored when `label` is given.
+
+------------------------------------------------------------------------
+
+### `Crawler$get_kv()`
+
+Get (lazily creating) the key-value store for binaries.
+
+#### Usage
+
+    Crawler$get_kv()
+
+#### Returns
+
+A
+[KeyValueStore](https://strategicprojects.github.io/crawlee/reference/KeyValueStore.md).
 
 ------------------------------------------------------------------------
 
