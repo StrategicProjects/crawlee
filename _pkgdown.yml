@@ -21,6 +21,11 @@ reference:
       - cr_dataset
       - cr_run
       - cr_collect
+  - title: Discovery
+    desc: Seed the queue from sitemaps and feeds.
+    contents:
+      - cr_from_sitemap
+      - cr_from_rss
   - title: Handlers
     desc: Register handlers and act on fetched content.
     contents:

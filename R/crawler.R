@@ -53,8 +53,10 @@ Crawler <- R6::R6Class(
       self$dataset <- Dataset$new()
       self$handlers <- list()
       self$default_handler <- NULL
-      self$stats <- list(requests = 0L, succeeded = 0L, failed = 0L)
+      self$stats <- list(requests = 0L, succeeded = 0L, failed = 0L, skipped = 0L)
       private$logger <- make_logger(self$options$log_level)
+      private$robots_cache <- new.env(parent = emptyenv())
+      private$crawl_delay <- 0
       opts <- rlang::list2(...)
       if (length(opts)) {
         self$set_options(!!!opts)
@@ -101,22 +103,62 @@ Crawler <- R6::R6Class(
         if (is.null(req)) break
         self$stats$requests <- self$stats$requests + 1L
         private$process(req)
-        if (self$options$delay > 0) Sys.sleep(self$options$delay)
+        wait <- max(self$options$delay, private$crawl_delay)
+        if (wait > 0) Sys.sleep(wait)
       }
       cli::cli_rule("crawlee - done")
       log$success(
         "Handled {self$stats$succeeded} - failed {self$stats$failed} - ",
-        "records {self$dataset$count()}"
+        "skipped {self$stats$skipped} - records {self$dataset$count()}"
       )
       invisible(self)
     }
   ),
   private = list(
     logger = NULL,
+    robots_cache = NULL,
+    crawl_delay = 0,
+
+    # Check (and cache, per host) whether a URL is crawlable per robots.txt.
+    robots_check = function(url) {
+      if (!isTRUE(self$options$respect_robots)) {
+        return(list(allowed = TRUE, crawl_delay = 0))
+      }
+      p <- xml2::url_parse(url)
+      key <- paste0(tolower(p$scheme), "://", tolower(p$server))
+      rec <- private$robots_cache[[key]]
+      if (is.null(rec)) {
+        txt <- tryCatch({
+          r <- cr_http_get(
+            paste0(key, "/robots.txt"),
+            self$options$user_agent, self$options$timeout
+          )
+          if (httr2::resp_status(r) >= 400L) "" else httr2::resp_body_string(r)
+        }, error = function(e) "")
+        rec <- list(record = robots_select(parse_robots(txt), self$options$user_agent))
+        private$robots_cache[[key]] <- rec
+      }
+      path <- if (nzchar(p$path)) p$path else "/"
+      if (!is.na(p$query) && nzchar(p$query)) {
+        path <- paste0(path, "?", p$query)
+      }
+      cd <- if (is.null(rec$record)) NA_real_ else rec$record$crawl_delay
+      list(
+        allowed = robots_path_allowed(path, rec$record),
+        crawl_delay = if (is.na(cd)) 0 else cd
+      )
+    },
 
     # Fetch + dispatch a single request, with retry-on-error.
     process = function(req) {
       log <- private$logger
+      rb <- private$robots_check(req$url)
+      private$crawl_delay <- rb$crawl_delay %||% 0
+      if (!rb$allowed) {
+        log$warn("Blocked by robots.txt: {.url {req$url}}")
+        self$stats$skipped <- self$stats$skipped + 1L
+        return(invisible(NULL))
+      }
       resp <- tryCatch(private$fetch(req), error = function(e) e)
       if (inherits(resp, "error")) {
         if (req$retry_count < self$options$max_retries) {

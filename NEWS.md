@@ -2,7 +2,19 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
-## Milestone M1 — core (in progress)
+## Milestone M2 — discovery
+
+* `cr_from_sitemap()` enqueues URLs from a `sitemap.xml`, recursing into
+  sitemap indexes, transparently handling gzipped sitemaps, with glob filters
+  and a `since` filter on `<lastmod>` for incremental crawls.
+* `cr_from_rss()` enqueues items from RSS and Atom feeds, carrying item title
+  and date into the request's `user_data`.
+* `robots.txt` is now enforced when `respect_robots = TRUE` (the default): a
+  native parser/matcher (User-agent grouping, `*`/`$` patterns, longest-match
+  with Allow override, Crawl-delay), cached per host. Disallowed URLs are
+  skipped and reported; `Crawl-delay` is honoured.
+
+## Milestone M1 — core
 
 * `crawler()` builds a stateful, pipe-friendly crawler.
 * `RequestQueue`: deduplicating (normalised `unique_key`), FIFO, resumable
@@ -19,8 +31,6 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 ## Not implemented yet (roadmap)
 
-* `respect_robots` option is accepted but not yet enforced (planned M2).
 * Persistent dataset backends (DuckDB, Parquet) — the `backend` argument is
-  accepted but currently stores in memory (planned M1/M2).
-* Sitemap and RSS discovery (M2), PDF handlers (M3), headless browser (M4),
-  RAG helpers (M5).
+  accepted but currently stores in memory.
+* PDF handlers (M3), headless browser (M4), RAG helpers (M5).
