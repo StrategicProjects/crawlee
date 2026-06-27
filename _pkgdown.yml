@@ -20,6 +20,7 @@ reference:
       - cr_use_browser
       - cr_parallel
       - cr_autoscale
+      - cr_stream
       - cr_run
       - cr_collect
   - title: Discovery

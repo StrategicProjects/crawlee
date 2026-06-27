@@ -20,6 +20,7 @@ crawler_default_options <- function() {
     autoscale = FALSE,
     min_concurrency = 1L,
     max_concurrency = 16L,
+    stream = FALSE,
     log_level = "info"
   )
 }
@@ -143,15 +144,24 @@ Crawler <- R6::R6Class(
       parallel <- isTRUE(self$options$parallel) &&
         identical(self$mode, "http") &&
         as.integer(self$options$concurrency) > 1L
+      streaming <- parallel && isTRUE(self$options$stream)
       conc_txt <- if (!parallel) {
         ""
+      } else if (streaming) {
+        paste0(" stream x", self$options$concurrency)
       } else if (isTRUE(self$options$autoscale)) {
         paste0(" autoscale ", self$options$min_concurrency, "-", self$options$max_concurrency)
       } else {
         paste0(" x", self$options$concurrency)
       }
       log$info("Mode: {.val {self$mode}}{conc_txt} - pending: {self$queue$pending_count()}")
-      if (parallel) private$run_parallel() else private$run_sequential()
+      if (streaming) {
+        private$run_stream()
+      } else if (parallel) {
+        private$run_parallel()
+      } else {
+        private$run_sequential()
+      }
       cli::cli_rule("crawlee - done")
       log$success(
         "Handled {self$stats$succeeded} - failed {self$stats$failed} - ",
@@ -300,6 +310,59 @@ Crawler <- R6::R6Class(
       }
       self$stats$final_concurrency <- conc
       if (autoscale) log$info("Autoscale settled at concurrency {conc}.")
+    },
+
+    # Streaming engine: keep up to `concurrency` requests in flight at all
+    # times via async promises; as soon as one finishes, dispatch it and pull
+    # the next from the queue. Maximises throughput under heterogeneous
+    # latency. Concurrency is the throttle; `delay`/`Crawl-delay` pacing is not
+    # enforced here (use the batch engine for strict pacing).
+    run_stream = function() {
+      rlang::check_installed(c("promises", "later"), "for the streaming scheduler.")
+      log <- private$logger
+      conc <- as.integer(self$options$concurrency)
+      every <- max(1L, as.integer(self$options$checkpoint_every))
+      active <- 0L
+      completed <- 0L
+
+      fill <- function() {
+        while (active < conc &&
+          !self$queue$is_empty() &&
+          self$stats$requests < self$options$max_requests) {
+          req <- self$queue$pop()
+          if (is.null(req)) break
+          rb <- private$robots_check(req$url)
+          if (!rb$allowed) {
+            log$warn("Blocked by robots.txt: {.url {req$url}}")
+            self$stats$skipped <- self$stats$skipped + 1L
+            next
+          }
+          self$stats$requests <- self$stats$requests + 1L
+          active <<- active + 1L
+          local({
+            r <- req
+            p <- httr2::req_perform_promise(private$build_request(r))
+            p <- promises::then(
+              p,
+              onFulfilled = function(resp) {
+                private$dispatch_fetched(r, fetched_response(resp))
+              },
+              onRejected = function(err) {
+                private$handle_fetch_error(r, err)
+              }
+            )
+            promises::finally(p, function() {
+              active <<- active - 1L
+              completed <<- completed + 1L
+              if (completed %% every == 0L) self$queue$save()
+              fill()
+            })
+          })
+        }
+      }
+
+      fill()
+      while (active > 0L) later::run_now(timeout = 0.25)
     },
 
     # Fetch + dispatch a single request (sequential path), with robots gate.
@@ -534,6 +597,41 @@ cr_autoscale <- function(crawler, min = 1L, max = 16L, max_active = NULL) {
     min_concurrency = as.integer(min),
     max_concurrency = as.integer(max),
     max_active = max_active
+  )
+  invisible(crawler)
+}
+
+#' Enable the streaming scheduler
+#'
+#' A continuous-pool alternative to [cr_parallel()]'s synchronous batches. The
+#' streaming engine keeps up to `concurrency` requests in flight at all times
+#' (via async promises, [httr2::req_perform_promise()]): the moment one request
+#' finishes, its handler runs and the next request is pulled from the queue to
+#' refill the slot. Under heterogeneous response latency this avoids the
+#' "wait for the slowest in the batch" stall and improves throughput.
+#'
+#' Requires the \pkg{promises} and \pkg{later} packages, and the HTTP backend.
+#' Concurrency is the throttle; `delay` / `robots.txt` `Crawl-delay` pacing is
+#' **not** enforced in streaming mode (use [cr_parallel()] for strict pacing).
+#' `robots.txt` allow/deny rules are still respected.
+#'
+#' @param crawler A [Crawler].
+#' @param concurrency Number of requests to keep in flight.
+#'
+#' @return The crawler, invisibly.
+#' @export
+#'
+#' @examples
+#' crawler("https://example.com") |> cr_stream(concurrency = 10)
+cr_stream <- function(crawler, concurrency = 8L) {
+  check_crawler(crawler)
+  if (concurrency < 1L) {
+    cli::cli_abort("{.arg concurrency} must be a positive integer.")
+  }
+  crawler$set_options(
+    parallel = TRUE,
+    stream = TRUE,
+    concurrency = as.integer(concurrency)
   )
   invisible(crawler)
 }

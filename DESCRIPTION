@@ -34,9 +34,11 @@ Suggests:
     httptest2,
     jsonlite,
     knitr,
+    later,
     nanoparquet,
     pdftools,
     polite,
+    promises,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder:
