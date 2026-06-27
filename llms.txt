@@ -63,13 +63,16 @@ resultado
 
 ## Roadmap
 
-| Milestone | Scope                                               |
-|-----------|-----------------------------------------------------|
-| **M1**    | Core: queue, HTTP, HTML handlers, dataset, cli logs |
-| **M2**    | Sitemap & RSS discovery, robots.txt enforcement     |
-| **M3**    | PDF / document handlers (`pdftools`)                |
-| **M4**    | Headless browser backend (`chromote`)               |
-| **M5**    | RAG helpers (chunking, embeddings, export)          |
+| Milestone | Scope                                               | Status |
+|-----------|-----------------------------------------------------|--------|
+| **M1**    | Core: queue, HTTP, HTML handlers, dataset, cli logs | ✅     |
+| **M2**    | Sitemap & RSS discovery, robots.txt enforcement     | ✅     |
+| **M3**    | PDF / document handlers (`pdftools`)                | ✅     |
+| **M4**    | Headless browser backend (`chromote`)               | ✅     |
+| **M5**    | RAG helpers (chunking, embeddings, export)          | ✅     |
+
+Next: persistent/resumable dataset backends (DuckDB, Parquet) and
+parallel/autoscaled fetching.
 
 ## License
 
