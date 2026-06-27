@@ -1,4 +1,4 @@
-# crawlee: A Tidy R Interface for Reproducible Web Crawling
+# crawlee: Tidy Interface for Reproducible Web Crawling
 
 A tidy, pipe-friendly toolkit for reproducible web crawling and
 structured data collection, inspired by the architecture of the

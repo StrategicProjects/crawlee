@@ -1,6 +1,6 @@
 # Crawler
 
-The stateful object at the centre of crawlee. It holds the request
+The stateful object at the center of crawlee. It holds the request
 queue, the dataset, the registered handlers and the run configuration.
 You will rarely create one with `Crawler$new()` directly; use
 [`crawler()`](https://strategicprojects.github.io/crawlee/reference/crawler.md)
