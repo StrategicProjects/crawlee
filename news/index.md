@@ -4,6 +4,18 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+### Milestone M7 — parallel fetching
+
+- `cr_parallel(concurrency)` enables concurrent fetching for the HTTP
+  backend (Crawlee’s autoscaled-pool equivalent): the queue is drained
+  in batches whose network I/O runs concurrently via
+  [`httr2::req_perform_parallel()`](https://httr2.r-lib.org/reference/req_perform_parallel.html),
+  while handlers still run sequentially in R (no shared-state hazard).
+  `robots.txt`, retries, depth/request limits and queue checkpointing
+  all still apply; `delay`/`Crawl-delay` are applied between batches.
+- The engine was refactored into shared `dispatch`/`error` steps used by
+  both the sequential and parallel loops.
+
 ### Milestone M6 — persistent & resumable storage
 
 - [`cr_persist()`](https://strategicprojects.github.io/crawlee/reference/cr_persist.md)
@@ -94,7 +106,7 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
   returns a tibble.
 - Rich console logging via `cli`.
 
-### Not implemented yet (roadmap)
+### Possible future work
 
-- Parallel/autoscaled fetching (currently sequential with rate
-  limiting).
+- Dynamic concurrency auto-tuning (current parallelism uses a fixed
+  batch size); a fully streaming scheduler (vs. batch-synchronous).
