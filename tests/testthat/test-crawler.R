@@ -16,7 +16,7 @@ test_that("verbs return the crawler invisibly and compose", {
     cr_use_http() |>
     cr_on_html(function(ctx) ctx$push_data(list(u = ctx$request$url)))
   expect_s3_class(cr, "Crawler")
-  expect_false(is.null(cr$default_handler))
+  expect_false(is.null(cr$defaults$html))
 })
 
 test_that("cr_use_browser errors as not implemented", {

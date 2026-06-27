@@ -11,6 +11,7 @@ crawler_default_options <- function() {
     user_agent = "crawlee-R (+https://github.com/StrategicProjects/crawlee)",
     respect_robots = TRUE,
     same_domain = TRUE,
+    store_dir = NULL,
     log_level = "info"
   )
 }
@@ -37,8 +38,11 @@ Crawler <- R6::R6Class(
     dataset = NULL,
     #' @field handlers Named list of label-specific handlers.
     handlers = NULL,
-    #' @field default_handler Handler used when no label matches.
-    default_handler = NULL,
+    #' @field defaults Named list of default handlers by content kind
+    #'   (`html`, `pdf`, `any`).
+    defaults = NULL,
+    #' @field kv Lazily-created [KeyValueStore] for binary content.
+    kv = NULL,
     #' @field mode Fetch mode, `"http"` (default) or `"browser"`.
     mode = "http",
     #' @field stats Named list of run statistics.
@@ -52,7 +56,7 @@ Crawler <- R6::R6Class(
       self$queue <- RequestQueue$new()
       self$dataset <- Dataset$new()
       self$handlers <- list()
-      self$default_handler <- NULL
+      self$defaults <- list()
       self$stats <- list(requests = 0L, succeeded = 0L, failed = 0L, skipped = 0L)
       private$logger <- make_logger(self$options$log_level)
       private$robots_cache <- new.env(parent = emptyenv())
@@ -80,16 +84,27 @@ Crawler <- R6::R6Class(
       invisible(self)
     },
 
-    #' @description Register a handler for a content label.
+    #' @description Register a handler for a content label or kind.
     #' @param handler A function of one argument, the handler context.
-    #' @param label Optional label; `NULL` registers the default handler.
-    set_handler = function(handler, label = NULL) {
+    #' @param label Optional label; `NULL` registers a default handler.
+    #' @param kind Content kind for the default handler (`"html"`, `"pdf"`,
+    #'   `"any"`). Ignored when `label` is given.
+    set_handler = function(handler, label = NULL, kind = "html") {
       if (is.null(label)) {
-        self$default_handler <- handler
+        self$defaults[[kind]] <- handler
       } else {
         self$handlers[[label]] <- handler
       }
       invisible(self)
+    },
+
+    #' @description Get (lazily creating) the key-value store for binaries.
+    #' @return A [KeyValueStore].
+    get_kv = function() {
+      if (is.null(self$kv)) {
+        self$kv <- KeyValueStore$new(self$options$store_dir)
+      }
+      self$kv
     },
 
     #' @description Run the crawl until the queue drains or a limit is hit.
@@ -170,12 +185,14 @@ Crawler <- R6::R6Class(
         }
         return(invisible(NULL))
       }
-      handler <- private$resolve_handler(req)
+      ct <- tryCatch(httr2::resp_content_type(resp), error = function(e) "")
+      kind <- classify_content(ct, req$url)
+      handler <- private$resolve_handler(req, kind)
       if (is.null(handler)) {
-        log$debug("No handler for {req$url}")
+        log$debug("No handler for {req$url} (kind: {kind})")
       } else {
-        page <- private$parse(resp)
-        ctx <- crawler_context(self, req, resp, page, private$logger)
+        page <- if (kind == "html") private$parse(resp) else NULL
+        ctx <- crawler_context(self, req, resp, page, private$logger, kind, ct)
         tryCatch(
           handler(ctx),
           error = function(e) {
@@ -185,15 +202,15 @@ Crawler <- R6::R6Class(
       }
       self$queue$mark_handled()
       self$stats$succeeded <- self$stats$succeeded + 1L
-      log$info("{.url {req$url}} -> {httr2::resp_status(resp)}")
+      log$info("{.url {req$url}} -> {httr2::resp_status(resp)} ({kind})")
       invisible(NULL)
     },
 
-    resolve_handler = function(req) {
+    resolve_handler = function(req, kind) {
       if (!is.null(req$label) && !is.null(self$handlers[[req$label]])) {
         return(self$handlers[[req$label]])
       }
-      self$default_handler
+      self$defaults[[kind]] %||% self$defaults[["any"]]
     },
 
     fetch = function(req) {

@@ -4,20 +4,39 @@
 #' the raw response, the parsed page and a set of action closures bound to the
 #' running crawler.
 #'
-#' @return An environment with elements `request`, `response`, `page`, `log`
-#'   and the methods `push_data()` and `enqueue_links()`.
+#' @return An environment with elements `request`, `response`, `page`, `kind`,
+#'   `content_type`, `log` and the methods `push_data()`, `enqueue_links()`,
+#'   `body_raw()`, `body_string()`, `pdf_text()` and `save_body()`.
 #' @keywords internal
 #' @noRd
-crawler_context <- function(crawler, request, response, page, logger) {
+crawler_context <- function(crawler, request, response, page, logger,
+                            kind = "html", content_type = "") {
   ctx <- new.env(parent = emptyenv())
   ctx$request <- request
   ctx$response <- response
   ctx$page <- page
+  ctx$kind <- kind
+  ctx$content_type <- content_type
   ctx$log <- logger
 
   ctx$push_data <- function(data) {
     crawler$dataset$push(data)
     invisible(ctx)
+  }
+
+  ctx$body_raw <- function() httr2::resp_body_raw(response)
+
+  ctx$body_string <- function() httr2::resp_body_string(response)
+
+  ctx$pdf_text <- function() {
+    rlang::check_installed("pdftools", "to extract text from PDF documents.")
+    pdftools::pdf_text(httr2::resp_body_raw(response))
+  }
+
+  ctx$save_body <- function(key = NULL, ext = NULL) {
+    key <- key %||% request$url
+    if (!is.null(ext)) key <- paste0(key, ".", sub("^\\.", "", ext))
+    crawler$get_kv()$set_raw(key, httr2::resp_body_raw(response))
   }
 
   ctx$enqueue_links <- function(selector = "a", glob = NULL, include = NULL,

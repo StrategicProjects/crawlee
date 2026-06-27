@@ -21,6 +21,25 @@ cr_http_get <- function(url, user_agent = NULL, timeout = 30, max_tries = 2L) {
     httr2::req_perform()
 }
 
+#' Classify response content into a handler kind
+#'
+#' @param content_type The response `Content-Type` (may be empty).
+#' @param url The request URL (used as a fallback, e.g. `.pdf` extension).
+#'
+#' @return One of `"pdf"`, `"html"`, `"other"`.
+#' @keywords internal
+#' @noRd
+classify_content <- function(content_type, url) {
+  ct <- tolower(content_type %||% "")
+  if (grepl("pdf", ct) || grepl("\\.pdf($|\\?|#)", tolower(url))) {
+    return("pdf")
+  }
+  if (grepl("html|xml", ct)) {
+    return("html")
+  }
+  "other"
+}
+
 #' Read an XML document from a response, transparently decompressing gzip
 #'
 #' Many governmental sitemaps are served as gzipped `.xml.gz`. `httr2` only

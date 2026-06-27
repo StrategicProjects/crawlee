@@ -22,7 +22,10 @@ native pipe (\verb{|>}).
 
     \item{\code{handlers}}{Named list of label-specific handlers.}
 
-    \item{\code{default_handler}}{Handler used when no label matches.}
+    \item{\code{defaults}}{Named list of default handlers by content kind
+(\code{html}, \code{pdf}, \code{any}).}
+
+    \item{\code{kv}}{Lazily-created \link{KeyValueStore} for binary content.}
 
     \item{\code{mode}}{Fetch mode, \code{"http"} (default) or \code{"browser"}.}
 
@@ -36,6 +39,7 @@ native pipe (\verb{|>}).
     \item \href{#method-Crawler-initialize}{\code{Crawler$new()}}
     \item \href{#method-Crawler-set_options}{\code{Crawler$set_options()}}
     \item \href{#method-Crawler-set_handler}{\code{Crawler$set_handler()}}
+    \item \href{#method-Crawler-get_kv}{\code{Crawler$get_kv()}}
     \item \href{#method-Crawler-run}{\code{Crawler$run()}}
     \item \href{#method-Crawler-clone}{\code{Crawler$clone()}}
   }
@@ -83,19 +87,36 @@ native pipe (\verb{|>}).
 \if{html}{\out{<a id="method-Crawler-set_handler"></a>}}
 \if{latex}{\out{\hypertarget{method-Crawler-set_handler}{}}}
 \subsection{\code{Crawler$set_handler()}}{
-  Register a handler for a content label.
+  Register a handler for a content label or kind.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{Crawler$set_handler(handler, label = NULL)}
+    \preformatted{Crawler$set_handler(handler, label = NULL, kind = "html")}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{handler}}{A function of one argument, the handler context.}
-      \item{\code{label}}{Optional label; \code{NULL} registers the default handler.}
+      \item{\code{label}}{Optional label; \code{NULL} registers a default handler.}
+      \item{\code{kind}}{Content kind for the default handler (\code{"html"}, \code{"pdf"},
+\code{"any"}). Ignored when \code{label} is given.}
     }
     \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Crawler-get_kv"></a>}}
+\if{latex}{\out{\hypertarget{method-Crawler-get_kv}{}}}
+\subsection{\code{Crawler$get_kv()}}{
+  Get (lazily creating) the key-value store for binaries.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Crawler$get_kv()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \link{KeyValueStore}.
   }
 }
 

@@ -30,12 +30,15 @@ reference:
     desc: Register handlers and act on fetched content.
     contents:
       - cr_on_html
+      - cr_on_pdf
   - title: Storage & queue
     desc: Lower-level building blocks.
     contents:
       - Crawler-class
       - RequestQueue
       - Dataset
+      - cr_store
+      - KeyValueStore
   - title: Utilities
     contents:
       - cr_normalize_url

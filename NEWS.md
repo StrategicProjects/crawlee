@@ -2,6 +2,17 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+## Milestone M3 — documents
+
+* Content-type aware dispatch: each response is classified (`html`, `pdf`,
+  `other`) and routed to the matching default handler; explicit request labels
+  still take precedence.
+* `cr_on_pdf()` registers a PDF handler. Its context adds `pdf_text()`
+  (per-page text via \pkg{pdftools}), `body_raw()`/`body_string()` and
+  `save_body()`.
+* `KeyValueStore` plus `cr_store()` and `ctx$save_body()`: persist raw
+  responses (PDFs, images, snapshots) on disk alongside the structured dataset.
+
 ## Milestone M2 — discovery
 
 * `cr_from_sitemap()` enqueues URLs from a `sitemap.xml`, recursing into
@@ -33,4 +44,4 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 * Persistent dataset backends (DuckDB, Parquet) — the `backend` argument is
   accepted but currently stores in memory.
-* PDF handlers (M3), headless browser (M4), RAG helpers (M5).
+* Headless browser (M4), RAG helpers (M5).

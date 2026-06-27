@@ -35,12 +35,13 @@ cr_collect <- function(crawler) {
 
 #' @export
 print.Crawler <- function(x, ...) {
-  default <- if (is.null(x$default_handler)) "" else " + default"
+  defaults <- names(x$defaults)
+  defaults_txt <- if (length(defaults)) paste(defaults, collapse = ", ") else "none"
   cli::cli_text("{.cls Crawler} ({.val {x$mode}} mode)")
   cli::cli_bullets(c(
     "*" = "pending requests: {x$queue$pending_count()}",
     "*" = "handled: {x$queue$handled()} - records: {x$dataset$count()}",
-    "*" = "handlers: {length(x$handlers)} labelled{default}"
+    "*" = "handlers: {length(x$handlers)} labelled - defaults: {defaults_txt}"
   ))
   invisible(x)
 }
