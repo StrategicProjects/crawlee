@@ -17,6 +17,9 @@ crawler_default_options <- function() {
     checkpoint_every = 25L,
     parallel = FALSE,
     max_active = NULL,
+    autoscale = FALSE,
+    min_concurrency = 1L,
+    max_concurrency = 16L,
     log_level = "info"
   )
 }
@@ -140,7 +143,13 @@ Crawler <- R6::R6Class(
       parallel <- isTRUE(self$options$parallel) &&
         identical(self$mode, "http") &&
         as.integer(self$options$concurrency) > 1L
-      conc_txt <- if (parallel) paste0(" x", self$options$concurrency) else ""
+      conc_txt <- if (!parallel) {
+        ""
+      } else if (isTRUE(self$options$autoscale)) {
+        paste0(" autoscale ", self$options$min_concurrency, "-", self$options$max_concurrency)
+      } else {
+        paste0(" x", self$options$concurrency)
+      }
       log$info("Mode: {.val {self$mode}}{conc_txt} - pending: {self$queue$pending_count()}")
       if (parallel) private$run_parallel() else private$run_sequential()
       cli::cli_rule("crawlee - done")
@@ -239,8 +248,10 @@ Crawler <- R6::R6Class(
     # handlers sequentially in R (no shared-state hazard).
     run_parallel = function() {
       log <- private$logger
-      conc <- as.integer(self$options$concurrency)
-      max_active <- self$options$max_active %||% conc
+      autoscale <- isTRUE(self$options$autoscale)
+      lo <- max(1L, as.integer(self$options$min_concurrency))
+      hi <- max(lo, as.integer(self$options$max_concurrency))
+      conc <- if (autoscale) lo else as.integer(self$options$concurrency)
       while (!self$queue$is_empty() && self$stats$requests < self$options$max_requests) {
         room <- self$options$max_requests - self$stats$requests
         take <- min(conc, room)
@@ -261,9 +272,12 @@ Crawler <- R6::R6Class(
         reqs <- lapply(batch, private$build_request)
         resps <- httr2::req_perform_parallel(
           reqs,
-          on_error = "continue", max_active = max_active, progress = FALSE
+          on_error = "continue",
+          max_active = self$options$max_active %||% conc,
+          progress = FALSE
         )
         self$stats$requests <- self$stats$requests + length(batch)
+        statuses <- vapply(resps, result_status, integer(1))
         for (i in seq_along(batch)) {
           resp <- resps[[i]]
           if (inherits(resp, "httr2_response")) {
@@ -272,11 +286,20 @@ Crawler <- R6::R6Class(
             private$handle_fetch_error(batch[[i]], resp)
           }
         }
+        if (autoscale) {
+          old <- conc
+          conc <- autoscale_next(conc, is_backpressure(statuses), lo, hi)
+          if (conc != old) {
+            log$debug("autoscale: concurrency {old} -> {conc}")
+          }
+        }
         self$queue$save()
         cd <- max(vapply(batch, function(r) r$crawl_delay %||% 0, numeric(1)))
         wait <- max(self$options$delay, cd)
         if (wait > 0) Sys.sleep(wait)
       }
+      self$stats$final_concurrency <- conc
+      if (autoscale) log$info("Autoscale settled at concurrency {conc}.")
     },
 
     # Fetch + dispatch a single request (sequential path), with robots gate.
@@ -476,6 +499,40 @@ cr_parallel <- function(crawler, concurrency = 4L, max_active = NULL) {
   crawler$set_options(
     parallel = TRUE,
     concurrency = as.integer(concurrency),
+    max_active = max_active
+  )
+  invisible(crawler)
+}
+
+#' Enable autoscaled parallel fetching
+#'
+#' Like [cr_parallel()], but the batch concurrency adapts at run time, the
+#' rough equivalent of Crawlee's autoscaled pool. After each batch the engine
+#' adjusts concurrency with an additive-increase / multiplicative-decrease
+#' rule: it grows by one when a batch is clean, and halves on back-pressure
+#' (a transport failure or an HTTP 429/500/502/503/504), staying within
+#' `[min, max]`.
+#'
+#' @param crawler A [Crawler].
+#' @param min,max Concurrency bounds. The crawl starts at `min`.
+#' @param max_active Maximum simultaneously-active connections (defaults to the
+#'   current concurrency).
+#'
+#' @return The crawler, invisibly.
+#' @export
+#'
+#' @examples
+#' crawler("https://example.com") |> cr_autoscale(min = 2, max = 16)
+cr_autoscale <- function(crawler, min = 1L, max = 16L, max_active = NULL) {
+  check_crawler(crawler)
+  if (min < 1L || max < min) {
+    cli::cli_abort("Require {.code 1 <= min <= max} (got min = {min}, max = {max}).")
+  }
+  crawler$set_options(
+    parallel = TRUE,
+    autoscale = TRUE,
+    min_concurrency = as.integer(min),
+    max_concurrency = as.integer(max),
     max_active = max_active
   )
   invisible(crawler)

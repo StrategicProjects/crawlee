@@ -2,6 +2,13 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
+## Milestone M8 — autoscaling (part 1)
+
+* `cr_autoscale(min, max)` adapts the parallel batch concurrency at run time
+  (Crawlee autoscaled-pool style): additive-increase on clean batches,
+  multiplicative-decrease on back-pressure (a transport failure or HTTP
+  429/500/502/503/504), clamped to `[min, max]`.
+
 ## Milestone M7 — parallel fetching
 
 * `cr_parallel(concurrency)` enables concurrent fetching for the HTTP backend
