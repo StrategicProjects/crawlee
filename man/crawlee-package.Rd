@@ -6,6 +6,8 @@
 \alias{crawlee-package}
 \title{crawlee: A Tidy R Interface for Reproducible Web Crawling}
 \description{
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
+
 A tidy, pipe-friendly toolkit for reproducible web crawling and structured data collection, inspired by the architecture of the 'Crawlee' library. Provides a unified crawler with a deduplicating, resumable request queue, content-type aware handlers, structured storage backends and rich console logging via 'cli'. Supports crawling HTML pages, sitemaps, RSS and Atom feeds and PDF documents, with optional headless-browser rendering and helpers for retrieval-augmented generation.
 }
 \seealso{
@@ -18,11 +20,17 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: André Leite \email{leite@de.ufpe.br}
+\strong{Maintainer}: Andre Leite \email{leite@castlab.org}
 
 Authors:
 \itemize{
-  \item André Leite \email{leite@de.ufpe.br}
+  \item Andre Leite \email{leite@castlab.org}
+  \item Marcos Wasilew \email{marcos.wasilew@gmail.com}
+  \item Hugo Vasconcelos \email{hugo.vasconcelos@ufpe.br}
+  \item Carlos Amorin \email{carlos.agaf@ufpe.br}
+  \item Diogo Bezerra \email{diogo.bezerra@ufpe.br}
+  \item Tiago Pereira \email{tiago.pereira@tesouro.gov.br}
+  \item Fernando Barbalho \email{fbarbalho@gmail.com}
 }
 
 }

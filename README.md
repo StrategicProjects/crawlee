@@ -81,4 +81,4 @@ parallel/autoscaled fetching.
 
 ## License
 
-MIT © André Leite.
+MIT © crawlee authors.
