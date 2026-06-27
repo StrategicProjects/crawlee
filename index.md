@@ -15,6 +15,19 @@ It is built entirely on the R web-scraping ecosystem
 [chromote](https://rstudio.github.io/chromote/)) — no Node.js runtime
 required.
 
+## How it works
+
+A crawl is a loop: requests flow through a deduplicating queue to a
+fetch engine; each response is dispatched to a handler that extracts
+data (`push_data()`) and discovers more links (`enqueue_links()`), which
+flow back into the queue until it drains.
+
+![crawlee request lifecycle](reference/figures/crawl-flow.svg)
+
+## Architecture
+
+![crawlee architecture](reference/figures/architecture.svg)
+
 ## Installation
 
 ``` r
