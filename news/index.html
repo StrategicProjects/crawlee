@@ -41,9 +41,11 @@
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crawlee-0009000-development">crawlee 0.0.0.9000 (development)<a class="anchor" aria-label="anchor" href="#crawlee-0009000-development"></a></h2>
 <p>First scaffold of the package. Crawlee-inspired, native-R architecture.</p>
 <div class="section level3">
-<h3 id="milestone-m8--autoscaling-part-0-0-0-9000">Milestone M8 — autoscaling (part 1)<a class="anchor" aria-label="anchor" href="#milestone-m8--autoscaling-part-0-0-0-9000"></a></h3>
+<h3 id="milestone-m8--autoscaling--streaming-0-0-0-9000">Milestone M8 — autoscaling &amp; streaming<a class="anchor" aria-label="anchor" href="#milestone-m8--autoscaling--streaming-0-0-0-9000"></a></h3>
 <ul><li>
 <code>cr_autoscale(min, max)</code> adapts the parallel batch concurrency at run time (Crawlee autoscaled-pool style): additive-increase on clean batches, multiplicative-decrease on back-pressure (a transport failure or HTTP 429/500/502/503/504), clamped to <code>[min, max]</code>.</li>
+<li>
+<code>cr_stream(concurrency)</code> adds a continuous-pool scheduler (via <code><a href="https://httr2.r-lib.org/reference/req_perform_promise.html" class="external-link">httr2::req_perform_promise()</a></code> + /): keeps <code>concurrency</code> requests in flight at all times, dispatching and refilling as each finishes — avoiding the batch engine’s “wait for the slowest” stall.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="milestone-m7--parallel-fetching-0-0-0-9000">Milestone M7 — parallel fetching<a class="anchor" aria-label="anchor" href="#milestone-m7--parallel-fetching-0-0-0-9000"></a></h3>
@@ -110,7 +112,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="possible-future-work-0-0-0-9000">Possible future work<a class="anchor" aria-label="anchor" href="#possible-future-work-0-0-0-9000"></a></h3>
-<ul><li>Dynamic concurrency auto-tuning (current parallelism uses a fixed batch size); a fully streaming scheduler (vs. batch-synchronous).</li>
+<ul><li>Autoscaling within the streaming scheduler (currently fixed concurrency); per-host rate-limit pacing in streaming mode.</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

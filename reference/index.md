@@ -16,6 +16,8 @@ Build, configure and run a crawler.
   : Enable parallel (concurrent) fetching
 - [`cr_autoscale()`](https://strategicprojects.github.io/crawlee/reference/cr_autoscale.md)
   : Enable autoscaled parallel fetching
+- [`cr_stream()`](https://strategicprojects.github.io/crawlee/reference/cr_stream.md)
+  : Enable the streaming scheduler
 - [`cr_run()`](https://strategicprojects.github.io/crawlee/reference/cr_run.md)
   : Run a crawl
 - [`cr_collect()`](https://strategicprojects.github.io/crawlee/reference/cr_collect.md)

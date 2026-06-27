@@ -4,12 +4,17 @@
 
 First scaffold of the package. Crawlee-inspired, native-R architecture.
 
-### Milestone M8 — autoscaling (part 1)
+### Milestone M8 — autoscaling & streaming
 
 - `cr_autoscale(min, max)` adapts the parallel batch concurrency at run
   time (Crawlee autoscaled-pool style): additive-increase on clean
   batches, multiplicative-decrease on back-pressure (a transport failure
   or HTTP 429/500/502/503/504), clamped to `[min, max]`.
+- `cr_stream(concurrency)` adds a continuous-pool scheduler (via
+  [`httr2::req_perform_promise()`](https://httr2.r-lib.org/reference/req_perform_promise.html) +
+  /): keeps `concurrency` requests in flight at all times, dispatching
+  and refilling as each finishes — avoiding the batch engine’s “wait for
+  the slowest” stall.
 
 ### Milestone M7 — parallel fetching
 
@@ -115,5 +120,5 @@ First scaffold of the package. Crawlee-inspired, native-R architecture.
 
 ### Possible future work
 
-- Dynamic concurrency auto-tuning (current parallelism uses a fixed
-  batch size); a fully streaming scheduler (vs. batch-synchronous).
+- Autoscaling within the streaming scheduler (currently fixed
+  concurrency); per-host rate-limit pacing in streaming mode.
