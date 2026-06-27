@@ -1,12 +1,12 @@
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # crawlee <img src="man/figures/logo.svg" align="right" height="139" alt="crawlee logo" />
 
 <!-- badges: start -->
-
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/StrategicProjects/crawlee/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/StrategicProjects/crawlee/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/StrategicProjects/crawlee/actions/workflows/pkgdown.yaml/badge.svg)](https://strategicprojects.github.io/crawlee/)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/license/mit)
+[![R \>= 4.1](https://img.shields.io/badge/R-%3E%3D%204.1-1f6feb.svg)](https://cran.r-project.org/)
 <!-- badges: end -->
 
 > A tidy R interface for reproducible web crawling — inspired by the
@@ -22,6 +22,19 @@ It is built entirely on the R web-scraping ecosystem
 ([httr2](https://httr2.r-lib.org), [rvest](https://rvest.tidyverse.org),
 [xml2](https://xml2.r-lib.org), [chromote](https://rstudio.github.io/chromote/))
 — no Node.js runtime required.
+
+## How it works
+
+A crawl is a loop: requests flow through a deduplicating queue to a fetch
+engine; each response is dispatched to a handler that extracts data
+(`push_data()`) and discovers more links (`enqueue_links()`), which flow back
+into the queue until it drains.
+
+<img src="man/figures/crawl-flow.svg" alt="crawlee request lifecycle" width="100%" />
+
+## Architecture
+
+<img src="man/figures/architecture.svg" alt="crawlee architecture" width="100%" />
 
 ## Installation
 

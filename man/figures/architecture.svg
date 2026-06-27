@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" width="820" height="520" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" role="img" aria-label="crawlee architecture">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0e8a63"/>
+    </marker>
+    <style>
+      .band{fill:#ffffff;stroke:#0e8a63;stroke-width:1.6;}
+      .bandlab{fill:#0e8a63;font-weight:700;font-size:13px;letter-spacing:.4px;}
+      .chip{fill:#0e8a63;}
+      .chiptxt{fill:#ffffff;font-weight:600;font-size:13px;}
+      .chiplt{fill:#e7f7ef;stroke:#0e8a63;stroke-width:1.3;}
+      .chiplttxt{fill:#08503a;font-weight:600;font-size:13px;}
+      .flow{stroke:#0e8a63;stroke-width:2.4;fill:none;}
+      .note{fill:#3f7a64;font-size:11px;}
+    </style>
+  </defs>
+
+  <rect x="1" y="1" width="818" height="518" rx="16" fill="#f5fbf8" stroke="#d8efe4"/>
+  <text x="410" y="36" text-anchor="middle" fill="#08503a" font-weight="700" font-size="20">crawlee — architecture</text>
+
+  <!-- helper: each band is a rounded rect with a left label and chips -->
+
+  <!-- 1. Sources / discovery -->
+  <rect class="band" x="30" y="56" width="760" height="64" rx="12"/>
+  <text class="bandlab" x="46" y="82">SOURCES</text>
+  <text class="note" x="46" y="100">&amp; discovery</text>
+  <g>
+    <rect class="chiplt" x="180" y="72" width="150" height="32" rx="16"/><text class="chiplttxt" x="255" y="92" text-anchor="middle">start_urls</text>
+    <rect class="chiplt" x="345" y="72" width="190" height="32" rx="16"/><text class="chiplttxt" x="440" y="92" text-anchor="middle">cr_from_sitemap()</text>
+    <rect class="chiplt" x="550" y="72" width="160" height="32" rx="16"/><text class="chiplttxt" x="630" y="92" text-anchor="middle">cr_from_rss()</text>
+  </g>
+
+  <!-- 2. Crawler core -->
+  <rect class="band" x="30" y="140" width="760" height="64" rx="12"/>
+  <text class="bandlab" x="46" y="166">CORE</text>
+  <text class="note" x="46" y="184">crawler()</text>
+  <g>
+    <rect class="chip" x="180" y="156" width="170" height="32" rx="16"/><text class="chiptxt" x="265" y="176" text-anchor="middle">Request Queue</text>
+    <rect class="chip" x="362" y="156" width="150" height="32" rx="16"/><text class="chiptxt" x="437" y="176" text-anchor="middle">Router (labels)</text>
+    <rect class="chip" x="524" y="156" width="186" height="32" rx="16"/><text class="chiptxt" x="617" y="176" text-anchor="middle">Scheduler / engines</text>
+  </g>
+
+  <!-- 3. Fetch backends -->
+  <rect class="band" x="30" y="224" width="760" height="64" rx="12"/>
+  <text class="bandlab" x="46" y="250">FETCH</text>
+  <text class="note" x="46" y="268">+ robots.txt</text>
+  <g>
+    <rect class="chip" x="180" y="240" width="180" height="32" rx="16"/><text class="chiptxt" x="270" y="260" text-anchor="middle">HTTP · httr2</text>
+    <rect class="chip" x="372" y="240" width="200" height="32" rx="16"/><text class="chiptxt" x="472" y="260" text-anchor="middle">Browser · chromote</text>
+    <rect class="chiplt" x="584" y="240" width="126" height="32" rx="16"/><text class="chiplttxt" x="647" y="260" text-anchor="middle">robots.txt</text>
+  </g>
+
+  <!-- 4. Handlers -->
+  <rect class="band" x="30" y="308" width="760" height="64" rx="12"/>
+  <text class="bandlab" x="46" y="334">HANDLERS</text>
+  <text class="note" x="46" y="352">ctx</text>
+  <g>
+    <rect class="chip" x="180" y="324" width="135" height="32" rx="16"/><text class="chiptxt" x="247" y="344" text-anchor="middle">push_data()</text>
+    <rect class="chip" x="325" y="324" width="160" height="32" rx="16"/><text class="chiptxt" x="405" y="344" text-anchor="middle">enqueue_links()</text>
+    <rect class="chip" x="495" y="324" width="110" height="32" rx="16"/><text class="chiptxt" x="550" y="344" text-anchor="middle">pdf_text()</text>
+    <rect class="chip" x="615" y="324" width="95" height="32" rx="16"/><text class="chiptxt" x="662" y="344" text-anchor="middle">save_body</text>
+  </g>
+
+  <!-- 5. Storage -->
+  <rect class="band" x="30" y="392" width="760" height="64" rx="12"/>
+  <text class="bandlab" x="46" y="418">STORAGE</text>
+  <text class="note" x="46" y="436">cr_persist()</text>
+  <g>
+    <rect class="chiplt" x="180" y="408" width="230" height="32" rx="16"/><text class="chiplttxt" x="295" y="428" text-anchor="middle">Dataset (memory/jsonl/duckdb)</text>
+    <rect class="chiplt" x="422" y="408" width="150" height="32" rx="16"/><text class="chiplttxt" x="497" y="428" text-anchor="middle">KeyValueStore</text>
+    <rect class="chiplt" x="584" y="408" width="126" height="32" rx="16"/><text class="chiplttxt" x="647" y="428" text-anchor="middle">manifest</text>
+  </g>
+
+  <!-- 6. Analysis -->
+  <rect class="band" x="30" y="476" width="760" height="34" rx="12"/>
+  <text class="bandlab" x="46" y="497">ANALYSIS</text>
+  <g>
+    <rect class="chiplt" x="180" y="481" width="120" height="24" rx="12"/><text class="chiplttxt" x="240" y="497" text-anchor="middle">cr_collect()</text>
+    <rect class="chiplt" x="312" y="481" width="398" height="24" rx="12"/><text class="chiplttxt" x="511" y="497" text-anchor="middle">RAG — cr_chunk() · cr_embed() · cr_export()</text>
+  </g>
+
+  <!-- flow arrows between bands (left gutter) -->
+  <g>
+    <line class="flow" x1="120" y1="120" x2="120" y2="140" marker-end="url(#a2)"/>
+    <line class="flow" x1="120" y1="204" x2="120" y2="224" marker-end="url(#a2)"/>
+    <line class="flow" x1="120" y1="288" x2="120" y2="308" marker-end="url(#a2)"/>
+    <line class="flow" x1="120" y1="372" x2="120" y2="392" marker-end="url(#a2)"/>
+    <line class="flow" x1="120" y1="456" x2="120" y2="476" marker-end="url(#a2)"/>
+  </g>
+</svg>
