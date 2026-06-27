@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 231" width="200" height="231" role="img" aria-label="crawlee">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#13986d"/>
+      <stop offset="1" stop-color="#06402e"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d7f9ea"/>
+      <stop offset="1" stop-color="#57d3a2"/>
+    </linearGradient>
+    <radialGradient id="accent" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#adffd9"/>
+      <stop offset="1" stop-color="#37d18f"/>
+    </radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- hex border + face -->
+  <polygon points="100,2 198,58 198,173 100,229 2,173 2,58" fill="#82ecc2"/>
+  <polygon points="100,9.5 191.5,61.8 191.5,169.2 100,221.5 8.5,169.2 8.5,61.8" fill="url(#bg)"/>
+
+  <!-- crawl graph: a link tree spreading out from a root node -->
+  <g stroke="url(#edge)" stroke-width="2.3" stroke-linecap="round" opacity="0.9" fill="none">
+    <line x1="100" y1="44" x2="60"  y2="82"/>
+    <line x1="100" y1="44" x2="140" y2="82"/>
+    <line x1="100" y1="44" x2="100" y2="90"/>
+    <line x1="60"  y1="82" x2="44"  y2="122"/>
+    <line x1="60"  y1="82" x2="78"  y2="128"/>
+    <line x1="140" y1="82" x2="122" y2="128"/>
+    <line x1="140" y1="82" x2="156" y2="122"/>
+    <line x1="100" y1="90" x2="78"  y2="128"/>
+    <line x1="100" y1="90" x2="122" y2="128"/>
+  </g>
+
+  <g fill="#eafff6">
+    <circle cx="60"  cy="82"  r="5.2" fill="#eafff6"/>
+    <circle cx="140" cy="82"  r="5.2" fill="#eafff6"/>
+    <circle cx="100" cy="90"  r="4.6" fill="#eafff6"/>
+    <circle cx="44"  cy="122" r="4.6" fill="#eafff6"/>
+    <circle cx="78"  cy="128" r="4.6" fill="#eafff6"/>
+    <circle cx="122" cy="128" r="4.6" fill="#eafff6"/>
+    <circle cx="156" cy="122" r="4.6" fill="#eafff6"/>
+  </g>
+
+  <!-- root / "current" node, highlighted -->
+  <circle cx="100" cy="44" r="8.4" fill="url(#accent)" filter="url(#glow)"/>
+  <circle cx="100" cy="44" r="3.2" fill="#06402e"/>
+
+  <!-- wordmark -->
+  <text x="100" y="182" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="29" font-weight="700" letter-spacing="0.5" fill="#f4fffb">crawlee</text>
+</svg>
