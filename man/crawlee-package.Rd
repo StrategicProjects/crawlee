@@ -29,8 +29,6 @@ Authors:
   \item Hugo Vasconcelos \email{hugo.vasconcelos@ufpe.br}
   \item Carlos Amorin \email{carlos.agaf@ufpe.br}
   \item Diogo Bezerra \email{diogo.bezerra@ufpe.br}
-  \item Tiago Pereira \email{tiago.pereira@tesouro.gov.br}
-  \item Fernando Barbalho \email{fbarbalho@gmail.com}
 }
 
 }

@@ -6,9 +6,7 @@ Authors@R: c(
     person("Marcos", "Wasilew", email = "marcos.wasilew@gmail.com", role = "aut"),
     person("Hugo", "Vasconcelos", email = "hugo.vasconcelos@ufpe.br", role = "aut"),
     person("Carlos", "Amorin", email = "carlos.agaf@ufpe.br", role = "aut"),
-    person("Diogo", "Bezerra", email = "diogo.bezerra@ufpe.br", role = "aut"),
-    person("Tiago", "Pereira", email = "tiago.pereira@tesouro.gov.br", role = "aut"),
-    person("Fernando", "Barbalho", email = "fbarbalho@gmail.com", role = "aut"))
+    person("Diogo", "Bezerra", email = "diogo.bezerra@ufpe.br", role = "aut"))
 Description: A tidy, pipe-friendly toolkit for reproducible web crawling
     and structured data collection, inspired by the architecture of the
     'Crawlee' library. Provides a unified crawler with a deduplicating,
