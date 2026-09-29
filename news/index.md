@@ -1,6 +1,16 @@
 # Changelog
 
+## crawlee 0.1.1
+
+- Removed ‘polite’ from Suggests. It was archived on CRAN on 2026-09-12
+  and was never used by the package.
+- Author metadata: fixed the spelling of Carlos Amorim and Marcos
+  Wasiliew, added ORCID identifiers and added Júlia Nascimento Barreto
+  as an author.
+
 ## crawlee 0.1.0
+
+CRAN release: 2026-07-03
 
 First release. A tidy, native-R, Crawlee-inspired toolkit for
 reproducible web crawling.
