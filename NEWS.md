@@ -1,3 +1,8 @@
+# crawlee (development version)
+
+* Removed 'polite' from Suggests. It was archived on CRAN on 2026-09-12 and was
+  never used by the package, but its absence broke dependency resolution in CI.
+
 # crawlee 0.1.0
 
 First release. A tidy, native-R, Crawlee-inspired toolkit for reproducible web
