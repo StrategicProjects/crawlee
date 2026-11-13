@@ -1,3 +1,15 @@
+# crawlee (development version)
+
+* **Credit.** crawlee is an R reimplementation of the design and vocabulary of
+  [Crawlee](https://crawlee.dev), the web-crawling library by
+  [Apify](https://apify.com), and earlier releases understated that by calling
+  it "inspired by the architecture of" Crawlee without naming Apify. The
+  description, README, website, vignettes and package help now say so, state
+  that the package is not a wrapper nor a translation of Crawlee's source and
+  that it is not affiliated with or endorsed by Apify, and the README gained
+  a "Relationship to Crawlee" section. The `LICENSE` copyright holder now
+  reads "crawlee (R package) authors".
+
 # crawlee 0.1.1
 
 * Removed 'polite' from Suggests. It was archived on CRAN on 2026-09-12 and was
