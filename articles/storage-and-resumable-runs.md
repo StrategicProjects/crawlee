@@ -5,10 +5,12 @@
 library(crawlee)
 ```
 
-[Crawlee](https://crawlee.dev) separates three kinds of storage: the
-**request queue** (what to crawl), the **dataset** (structured results)
-and the **key-value store** (binary blobs). crawlee mirrors that split
-and adds a one-call setup for **reproducible, resumable** runs.
+[Crawlee](https://crawlee.dev), the web-crawling library by
+[Apify](https://apify.com) whose design this package reimplements in R,
+separates three kinds of storage: the **request queue** (what to crawl),
+the **dataset** (structured results) and the **key-value store** (binary
+blobs). crawlee mirrors that split and adds a one-call setup for
+**reproducible, resumable** runs.
 
 ## The dataset
 

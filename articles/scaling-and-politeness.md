@@ -5,9 +5,11 @@
 library(crawlee)
 ```
 
-This article covers the two sides of crawling at scale, following
-[Crawlee](https://crawlee.dev)’s *Scaling our crawlers* and *Avoid
-getting blocked* guides: going **faster** (concurrency) while staying
+This article covers the two sides of crawling at scale, following the
+*Scaling our crawlers* and *Avoid getting blocked* guides of
+[Crawlee](https://crawlee.dev), the web-crawling library by
+[Apify](https://apify.com) (the library whose design this package
+reimplements in R): going **faster** (concurrency) while staying
 **polite** (rate limits and `robots.txt`).
 
 ## Being a good web citizen

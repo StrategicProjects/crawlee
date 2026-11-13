@@ -5,8 +5,10 @@
 library(crawlee)
 ```
 
-This article follows the same path as the [Crawlee](https://crawlee.dev)
-fundamentals: start from a single page, then teach the crawler to
+This article follows the same path as the fundamentals guide of
+[Crawlee](https://crawlee.dev), the web-crawling library by
+[Apify](https://apify.com) — the library whose design this package
+reimplements in R: start from a single page, then teach the crawler to
 **follow links**, **control its scope**, **route** different page types
 and **discover URLs from a sitemap**. The examples target
 [`books.toscrape.com`](https://books.toscrape.com), a public sandbox

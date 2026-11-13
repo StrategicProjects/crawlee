@@ -7,8 +7,12 @@ library(crawlee)
 
 ## The mental model
 
-crawlee mirrors the architecture of [Crawlee](https://crawlee.dev) in
-pure R. A **crawler** owns:
+crawlee is an R reimplementation of the design and vocabulary of
+[Crawlee](https://crawlee.dev), the web-crawling library by
+[Apify](https://apify.com): it mirrors Crawlee’s architecture in R code
+written for this package, without wrapping Crawlee or translating its
+source. It is an independent project, not affiliated with or endorsed by
+Apify. A **crawler** owns:
 
 - a **request queue** — a deduplicating, resumable list of URLs to
   visit;

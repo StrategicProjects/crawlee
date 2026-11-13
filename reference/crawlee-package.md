@@ -1,13 +1,17 @@
 # crawlee: Tidy Interface for Reproducible Web Crawling
 
 A tidy, pipe-friendly toolkit for reproducible web crawling and
-structured data collection, inspired by the architecture of the
-'Crawlee' library. Provides a unified crawler with a deduplicating,
-resumable request queue, content-type aware handlers, structured storage
-backends and rich console logging via 'cli'. Supports crawling HTML
-pages, sitemaps, RSS and Atom feeds and PDF documents, with optional
-headless-browser rendering and helpers for retrieval-augmented
-generation.
+structured data collection. It is an R reimplementation of the design
+and vocabulary of 'Crawlee', the web-crawling library by Apify
+<https://crawlee.dev>: the request queue, dataset and key-value store,
+the labelled handlers and the autoscaled pool follow 'Crawlee'. It is
+not a wrapper around 'Crawlee' nor a translation of its source code, and
+it is not affiliated with or endorsed by Apify. Provides a unified
+crawler with a deduplicating, resumable request queue, content-type
+aware handlers, structured storage backends and rich console logging via
+'cli'. Supports crawling HTML pages, sitemaps, RSS and Atom feeds and
+PDF documents, with optional headless-browser rendering and helpers for
+retrieval-augmented generation.
 
 ## See also
 
